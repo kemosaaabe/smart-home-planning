@@ -1,0 +1,77 @@
+// Глобальные CSS-переменные для темизации и консистентности
+:root {
+  // colors
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-primary-light: #dbeafe;
+  
+  --color-secondary: #64748b;
+  --color-secondary-hover: #475569;
+  
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  
+  // bg
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  
+  // text-color
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #94a3b8;
+  
+  // borders
+  --border-color: #e2e8f0;
+  --border-radius: 8px;
+  --border-radius-lg: 12px;
+  
+  // shadows
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  
+  // spacing
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  
+  // sizes
+  --header-height: 64px;
+  --sidebar-width: 280px;
+  --container-max-width: 1200px;
+  
+  // font-sizes
+  --font-size-h1: 48px;
+  --font-size-h2: 36px;
+  --font-size-h3: 28px;
+  --font-size-h4: 20px;
+  --font-size-body-l: 20px;
+  --font-size-body-m: 16px;
+  --font-size-body-s: 14px;
+  
+  // line-heights
+  --line-height-h1: 56px;
+  --line-height-h2: 44px;
+  --line-height-h3: 36px;
+  --line-height-h4: 28px;
+  --line-height-body-l: 32px;
+  --line-height-body-m: 24px;
+  --line-height-body-s: 20px;
+}
+
+// dark theme
+[data-theme='dark'] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+  
+  --border-color: #334155;
+}
