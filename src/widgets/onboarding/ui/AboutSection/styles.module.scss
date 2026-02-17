@@ -1,0 +1,31 @@
+.about {
+  padding: var(--spacing-xl) var(--spacing-md);
+  background: var(--bg-secondary);
+}
+
+.container {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+}
+
+.text {
+  font-size: var(--font-size-body-l);
+  line-height: var(--line-height-body-l);
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .about {
+    padding: var(--spacing-lg) var(--spacing-sm);
+  }
+
+  .text {
+    font-size: var(--font-size-body-m);
+    line-height: var(--line-height-body-m);
+  }
+}
