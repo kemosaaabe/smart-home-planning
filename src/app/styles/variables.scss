@@ -1,9 +1,9 @@
 // Глобальные CSS-переменные для темизации и консистентности
 :root {
   // colors
-  --color-primary: #3b82f6;
-  --color-primary-hover: #2563eb;
-  --color-primary-light: #dbeafe;
+  --color-primary: #2854C5;
+  --color-primary-hover: #1e3fa8;
+  --color-primary-light: #e0e8f7;
   
   --color-secondary: #64748b;
   --color-secondary-hover: #475569;
@@ -61,6 +61,10 @@
   --line-height-body-l: 32px;
   --line-height-body-m: 24px;
   --line-height-body-s: 20px;
+  
+  // fonts
+  --font-family-primary: 'SN Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 }
 
 // dark theme
