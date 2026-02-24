@@ -1,6 +1,7 @@
 import { type FC } from 'react';
 import { Link } from 'react-router-dom';
 import dayjs from 'dayjs';
+import { FolderOpen } from 'lucide-react';
 import { type Project } from '../../model/types';
 import styles from './styles.module.scss';
 
@@ -13,6 +14,7 @@ export const ProjectCard: FC<ProjectCardProps> = ({ project }) => {
 
   return (
     <Link to={`/projects/${project.id}`} className={styles.card}>
+      <FolderOpen className={styles.icon} aria-hidden />
       <h3 className={styles.name}>{project.name}</h3>
       <p className={styles.description}>
         {project.description ?? 'Нет описания'}
