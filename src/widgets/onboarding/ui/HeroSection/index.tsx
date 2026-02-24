@@ -1,7 +1,6 @@
 import { type FC } from 'react';
 import { Link } from 'react-router-dom';
-import { cn } from '@/shared/lib';
-import { buttonVariants } from '@/shared/ui';
+import { Button } from '@/shared/ui';
 import styles from './styles.module.scss';
 
 export const HeroSection: FC = () => {
@@ -17,15 +16,12 @@ export const HeroSection: FC = () => {
           возможностей системы.
         </p>
         <div className={styles.actions}>
-          <Link to="/projects" className={cn(buttonVariants({ size: 'lg' }))}>
-            Создать проект
-          </Link>
-          <Link
-            to="/projects"
-            className={cn(buttonVariants({ variant: 'outline', size: 'lg' }))}
-          >
-            Перейти к проектам
-          </Link>
+          <Button size="lg" asChild>
+            <Link to="/projects">Создать проект</Link>
+          </Button>
+          <Button variant="outline" size="lg" asChild>
+            <Link to="/projects">Перейти к проектам</Link>
+          </Button>
         </div>
       </div>
     </section>

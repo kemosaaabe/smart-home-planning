@@ -1,8 +1,7 @@
 import { type FC } from 'react';
 import { Link } from 'react-router-dom';
 import { Home } from 'lucide-react';
-import { cn } from '@/shared/lib';
-import { buttonVariants } from '@/shared/ui';
+import { Button } from '@/shared/ui';
 import styles from './styles.module.scss';
 
 export const Header: FC = () => {
@@ -17,9 +16,9 @@ export const Header: FC = () => {
           <Link to="/projects" className={styles.navLink}>
             Проекты
           </Link>
-          <Link to="/projects" className={cn(buttonVariants())}>
-            Начать проектирование
-          </Link>
+          <Button asChild>
+            <Link to="/projects">Начать проектирование</Link>
+          </Button>
         </nav>
       </div>
     </header>
