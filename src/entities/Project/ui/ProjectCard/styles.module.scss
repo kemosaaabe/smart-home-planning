@@ -1,5 +1,8 @@
 .card {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 180px;
   padding: var(--spacing-md);
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
@@ -35,10 +38,12 @@
 }
 
 .description {
+  flex: 1;
   font-size: var(--font-size-body-m);
   line-height: var(--line-height-body-m);
   color: var(--text-secondary);
   margin: 0 0 var(--spacing-sm) 0;
+  min-height: 0;
 }
 
 .updatedAt {
