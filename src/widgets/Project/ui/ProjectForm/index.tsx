@@ -7,6 +7,7 @@ import {
   updateProject,
   type Project,
 } from '@/entities/Project';
+import { useProjectFormStore } from '@/widgets/Project/model/projectFormStore';
 import {
   Dialog,
   DialogContent,
@@ -53,12 +54,17 @@ export const ProjectForm: FC<ProjectFormProps> = ({
     defaultValues,
   });
 
+  const bumpProjectsVersion = useProjectFormStore(
+    (state) => state.bumpProjectsVersion
+  );
+
   const onSubmit = (data: ProjectFormValues) => {
     if (isEdit) {
       updateProject(project.id, {
         name: data.name,
         description: data.description || undefined,
       });
+      bumpProjectsVersion();
       onOpenChange(false);
 
       return;
@@ -68,7 +74,7 @@ export const ProjectForm: FC<ProjectFormProps> = ({
       name: data.name,
       description: data.description || undefined,
     });
-
+    bumpProjectsVersion();
     onOpenChange(false);
     navigate('/projects');
   };

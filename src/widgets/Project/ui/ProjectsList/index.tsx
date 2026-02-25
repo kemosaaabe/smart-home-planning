@@ -1,14 +1,21 @@
 import { type FC, useState, useEffect } from 'react';
 import { FolderOpen } from 'lucide-react';
-import { ProjectCard, initProjects, type Project } from '@/entities/Project';
+import {
+  ProjectCard,
+  getProjects,
+  initProjects,
+  type Project,
+} from '@/entities/Project';
+import { useProjectFormStore } from '@/widgets/Project/model/projectFormStore';
 import styles from './styles.module.scss';
 
 export const ProjectsList: FC = () => {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<Project[]>(() => initProjects());
+  const projectsVersion = useProjectFormStore((state) => state.projectsVersion);
 
   useEffect(() => {
-    setProjects(initProjects());
-  }, []);
+    setProjects(getProjects());
+  }, [projectsVersion]);
 
   if (projects.length === 0) {
     return (

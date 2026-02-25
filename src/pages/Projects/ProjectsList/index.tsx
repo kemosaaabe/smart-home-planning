@@ -1,16 +1,16 @@
-import { type FC, useState } from 'react';
+import { type FC } from 'react';
 import { Plus } from 'lucide-react';
 import { Layout } from '@/widgets/layout';
 import { Breadcrumbs, Button } from '@/shared/ui';
 import {
   ProjectsList,
-  ProjectForm,
   projectsListBreadcrumbs,
+  useProjectFormStore,
 } from '@/widgets/Project';
 import styles from './styles.module.scss';
 
 export const ProjectsListPage: FC = () => {
-  const [formOpen, setFormOpen] = useState(false);
+  const openCreateProjectForm = useProjectFormStore((state) => state.open);
 
   return (
     <Layout>
@@ -20,7 +20,7 @@ export const ProjectsListPage: FC = () => {
           <h1 className={styles.title}>Мои проекты</h1>
           <Button
             className={styles.createButton}
-            onClick={() => setFormOpen(true)}
+            onClick={openCreateProjectForm}
           >
             <Plus className={styles.createButtonIcon} />
             <span className={styles.createButtonText}>Создать проект</span>
@@ -28,10 +28,6 @@ export const ProjectsListPage: FC = () => {
         </div>
         <ProjectsList />
       </div>
-      <ProjectForm
-        open={formOpen}
-        onOpenChange={setFormOpen}
-      />
     </Layout>
   );
 };
