@@ -1,18 +1,43 @@
 import { type FC, useMemo, useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { getProjectBreadcrumbs } from '@/widgets/Project';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Settings } from 'lucide-react';
+import { getProjectBreadcrumbs, useProjectFormStore } from '@/widgets/Project';
+import { ProjectSettings } from '@/features/Project';
 import { RoomsList, RoomLayout } from '@/widgets/Room';
 import { Layout } from '@/widgets/layout';
-import { getProjects } from '@/entities/Project';
+import {
+  getProjects,
+  deleteProject as deleteProjectStorage,
+} from '@/entities/Project';
 import { getRooms } from '@/entities/Room';
-import { Breadcrumbs } from '@/shared/ui';
+import {
+  Breadcrumbs,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/shared/ui';
 import styles from './styles.module.scss';
 
 export const ProjectPage: FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const projectId = id != null ? Number(id) : NaN;
-  const project = getProjects().find((p) => p.id === projectId);
+  const openForEdit = useProjectFormStore((s) => s.openForEdit);
+  const projectsVersion = useProjectFormStore((s) => s.projectsVersion);
+  const [optionsModalOpen, setOptionsModalOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+
+  const project = useMemo(
+    () => getProjects().find((p) => p.id === projectId),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- projectsVersion триггерит перечит. после сохранения
+    [projectId, projectsVersion]
+  );
   const projectName = project?.name ?? 'Проект';
+
   const rooms = useMemo(
     () => (Number.isFinite(projectId) ? getRooms(projectId) : []),
     [projectId]
@@ -57,16 +82,88 @@ export const ProjectPage: FC = () => {
     return null;
   }, [project?.description, activeRoom?.description]);
 
+  const handleEditProject = () => {
+    if (project) {
+      setOptionsModalOpen(false);
+      openForEdit(project);
+    }
+  };
+
+  const handleDeleteClick = () => {
+    setOptionsModalOpen(false);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (Number.isFinite(projectId) && deleteProjectStorage(projectId)) {
+      setDeleteConfirmOpen(false);
+      navigate('/projects');
+    }
+  };
+
   return (
     <Layout>
       <div className={styles.page}>
         <Breadcrumbs items={breadcrumbs} />
         <div className={styles.header}>
-          <h1 className={styles.title}>{title}</h1>
-          {descriptionLine != null && (
-            <p className={styles.description}>{descriptionLine}</p>
-          )}
+          <div className={styles.headerContent}>
+            <div>
+              <h1 className={styles.title}>{title}</h1>
+              {descriptionLine != null && (
+                <p className={styles.description}>{descriptionLine}</p>
+              )}
+            </div>
+            {project != null && (
+              <div className={styles.headerActions}>
+                <button
+                  type="button"
+                  className={styles.settingsButton}
+                  onClick={() => setOptionsModalOpen(true)}
+                  aria-label="Настройки проекта"
+                >
+                  <Settings className={styles.settingsIcon} />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
+
+        <ProjectSettings
+          open={optionsModalOpen}
+          onOpenChange={setOptionsModalOpen}
+          project={project ?? null}
+          onEdit={handleEditProject}
+          onDelete={handleDeleteClick}
+        />
+
+        <Dialog
+          open={deleteConfirmOpen}
+          onOpenChange={setDeleteConfirmOpen}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Удалить проект?</DialogTitle>
+              <DialogDescription>
+                Проект «{projectName}» и все связанные данные будут удалены. Это
+                действие нельзя отменить.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="secondary"
+                onClick={() => setDeleteConfirmOpen(false)}
+              >
+                Отмена
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDeleteConfirm}
+              >
+                Удалить
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         <section
           className={
             rooms.length > 0 ? styles.rooms : styles.roomsEmpty

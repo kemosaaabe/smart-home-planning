@@ -73,3 +73,13 @@ export function updateProject(
 
   return updated;
 }
+
+export function deleteProject(id: number): boolean {
+  const projects = getProjects();
+  const filtered = projects.filter((p) => p.id !== id);
+  if (filtered.length === projects.length) {
+    return false;
+  }
+  saveProjects(filtered);
+  return true;
+}

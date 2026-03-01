@@ -8,11 +8,49 @@
   margin-bottom: var(--spacing-md);
 }
 
+.headerContent {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+.headerActions {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.settingsButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: var(--border-radius);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+
+  &:hover {
+    color: var(--text-primary);
+    background: var(--accent);
+  }
+}
+
+.settingsIcon {
+  width: 20px;
+  height: 20px;
+}
+
 .title {
   font-size: var(--font-size-h2);
   font-weight: 700;
   line-height: var(--line-height-h2);
   color: var(--text-primary);
+  margin: 0;
 }
 
 .description {

@@ -5,5 +5,6 @@ export {
   initProjects,
   addProject,
   updateProject,
+  deleteProject,
 } from './model/storage';
 export { ProjectCard } from './ui/ProjectCard';
