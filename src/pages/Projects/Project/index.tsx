@@ -48,12 +48,24 @@ export const ProjectPage: FC = () => {
     [projectName]
   );
 
+  const descriptionLine = useMemo(() => {
+    const proj = project?.description?.trim();
+    const room = activeRoom?.description?.trim();
+    if (proj && room) return `${proj} / ${room}`;
+    if (proj) return proj;
+    if (room) return room;
+    return null;
+  }, [project?.description, activeRoom?.description]);
+
   return (
     <Layout>
       <div className={styles.page}>
         <Breadcrumbs items={breadcrumbs} />
         <div className={styles.header}>
           <h1 className={styles.title}>{title}</h1>
+          {descriptionLine != null && (
+            <p className={styles.description}>{descriptionLine}</p>
+          )}
         </div>
         <section
           className={
