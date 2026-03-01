@@ -16,9 +16,11 @@ export const ProjectCard: FC<ProjectCardProps> = ({ project }) => {
     <Link to={`/projects/${project.id}`} className={styles.card}>
       <FolderOpen className={styles.icon} aria-hidden />
       <h3 className={styles.name}>{project.name}</h3>
-      <p className={styles.description}>
-        {project.description ?? 'Нет описания'}
-      </p>
+      {project.description != null && project.description !== '' ? (
+        <p className={styles.description}>{project.description}</p>
+      ) : (
+        <div className={styles.spacer} />
+      )}
       <p className={styles.updatedAt}>Изменён: {formattedDate}</p>
     </Link>
   );

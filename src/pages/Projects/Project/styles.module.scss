@@ -4,23 +4,71 @@
   margin: 0 auto;
 }
 
+.header {
+  margin-bottom: var(--spacing-lg);
+}
+
 .title {
   font-size: var(--font-size-h2);
   font-weight: 700;
   line-height: var(--line-height-h2);
   color: var(--text-primary);
-  margin: 0 0 var(--spacing-lg) 0;
+  margin: 0;
+}
+
+.rooms {
+  margin-top: 0;
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: flex-start;
+}
+
+.roomsEmpty {
+  margin-top: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.roomsCol {
+  flex-shrink: 0;
+  min-width: 220px;
+  max-width: 220px;
 }
 
 @media (max-width: 768px) {
   .page {
     padding: var(--spacing-md) var(--spacing-sm);
+    overflow-x: hidden;
+  }
+
+  .header {
+    margin-bottom: var(--spacing-md);
   }
 
   .title {
     font-size: var(--font-size-h3);
     line-height: var(--line-height-h3);
-    margin-bottom: var(--spacing-md);
+  }
+
+  .rooms {
+    flex-direction: column;
+  }
+
+  .roomsEmpty {
+    flex-direction: column;
+  }
+
+  .roomsCol {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 }
 

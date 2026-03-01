@@ -1,0 +1,9 @@
+.planning {
+  flex: 1;
+  min-width: 0;
+  min-height: 70vh;
+  background: var(--muted);
+  border-radius: var(--border-radius-lg);
+  border: 1px dashed var(--border);
+  width: 100%;
+}
