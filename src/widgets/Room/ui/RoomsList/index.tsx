@@ -9,19 +9,23 @@ export interface RoomsListProps {
   projectId: number;
   selectedRoomId: number | null;
   onSelectRoom: (roomId: number) => void;
+  onAddRoom?: () => void;
 }
 
 export const RoomsList: FC<RoomsListProps> = ({
   rooms,
   selectedRoomId,
   onSelectRoom,
+  onAddRoom,
 }) => {
   if (rooms.length === 0) {
     return (
       <div className={styles.empty}>
         <DoorOpen className={styles.emptyIcon} aria-hidden />
         <p className={styles.emptyText}>У вас пока нет комнат</p>
-        <Button type="button">Добавить комнату</Button>
+        <Button type="button" onClick={onAddRoom}>
+          Добавить комнату
+        </Button>
       </div>
     );
   }

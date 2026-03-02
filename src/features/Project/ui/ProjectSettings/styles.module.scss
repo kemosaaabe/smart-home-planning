@@ -30,10 +30,82 @@
 .roomItem {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--spacing-md);
+  width: 100%;
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--border-radius);
   background: var(--accent);
+}
+
+.roomItemTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  min-width: 0;
+}
+
+.roomItemActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-shrink: 0;
+}
+
+.roomActionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xs);
+  border: none;
+  border-radius: var(--border-radius);
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+
+  &:hover {
+    background: var(--accent-hover, color-mix(in srgb, var(--accent) 80%, black));
+    color: var(--text-primary);
+  }
+}
+
+.roomActionIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.createRoomTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border: 2px dashed var(--border);
+  border-radius: var(--border-radius);
+  background: none;
+  font-size: var(--font-size-body-m);
+  line-height: var(--line-height-body-m);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+
+  &:hover {
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
+  }
+}
+
+.createRoomIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.createRoomLabel {
+  font: inherit;
 }
 
 .roomIcon {

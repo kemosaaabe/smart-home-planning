@@ -3,13 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Settings } from 'lucide-react';
 import { getProjectBreadcrumbs, useProjectFormStore } from '@/widgets/Project';
 import { ProjectSettings } from '@/features/Project';
+import { RoomForm, useRoomFormStore } from '@/features/Room';
 import { RoomsList, RoomLayout } from '@/widgets/Room';
 import { Layout } from '@/widgets/layout';
 import {
   getProjects,
   deleteProject as deleteProjectStorage,
 } from '@/entities/Project';
-import { getRooms } from '@/entities/Room';
+import { deleteRoom, getRooms, type Room } from '@/entities/Room';
 import {
   Breadcrumbs,
   Button,
@@ -28,8 +29,16 @@ export const ProjectPage: FC = () => {
   const projectId = id != null ? Number(id) : NaN;
   const openForEdit = useProjectFormStore((s) => s.openForEdit);
   const projectsVersion = useProjectFormStore((s) => s.projectsVersion);
+  const roomsVersion = useRoomFormStore((s) => s.roomsVersion);
+  const openForCreateRoom = useRoomFormStore((s) => s.openForCreate);
+  const roomFormOpen = useRoomFormStore((s) => s.isOpen);
+  const setRoomFormOpen = useRoomFormStore((s) => s.setOpen);
+  const editRoom = useRoomFormStore((s) => s.editRoom);
+  const createProjectId = useRoomFormStore((s) => s.createProjectId);
+  const bumpRoomsVersion = useRoomFormStore((s) => s.bumpRoomsVersion);
   const [optionsModalOpen, setOptionsModalOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [roomToDelete, setRoomToDelete] = useState<Room | null>(null);
 
   const project = useMemo(
     () => getProjects().find((p) => p.id === projectId),
@@ -40,7 +49,8 @@ export const ProjectPage: FC = () => {
 
   const rooms = useMemo(
     () => (Number.isFinite(projectId) ? getRooms(projectId) : []),
-    [projectId]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [projectId, roomsVersion]
   );
 
   const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
@@ -101,6 +111,17 @@ export const ProjectPage: FC = () => {
     }
   };
 
+  const handleDeleteRoomClick = (room: Room) => {
+    setRoomToDelete(room);
+  };
+
+  const handleRoomDeleteConfirm = () => {
+    if (roomToDelete && deleteRoom(roomToDelete.id)) {
+      bumpRoomsVersion();
+      setRoomToDelete(null);
+    }
+  };
+
   return (
     <Layout>
       <div className={styles.page}>
@@ -135,6 +156,16 @@ export const ProjectPage: FC = () => {
           rooms={rooms}
           onEdit={handleEditProject}
           onDelete={handleDeleteClick}
+          onDeleteRoom={handleDeleteRoomClick}
+        />
+
+        <RoomForm
+          key={editRoom?.id ?? `create-${createProjectId ?? ''}`}
+          open={roomFormOpen}
+          onOpenChange={setRoomFormOpen}
+          room={editRoom ?? null}
+          projectId={createProjectId ?? undefined}
+          onSaved={() => setOptionsModalOpen(false)}
         />
 
         <Dialog
@@ -165,6 +196,35 @@ export const ProjectPage: FC = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        <Dialog
+          open={roomToDelete != null}
+          onOpenChange={(open) => !open && setRoomToDelete(null)}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Удалить комнату?</DialogTitle>
+              <DialogDescription>
+                Комната «{roomToDelete?.name}» и все связанные данные будут
+                удалены. Это действие нельзя отменить.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="secondary"
+                onClick={() => setRoomToDelete(null)}
+              >
+                Отмена
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleRoomDeleteConfirm}
+              >
+                Удалить
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         <section
           className={
             rooms.length > 0 ? styles.rooms : styles.roomsEmpty
@@ -176,6 +236,11 @@ export const ProjectPage: FC = () => {
               projectId={projectId}
               selectedRoomId={selectedRoomId}
               onSelectRoom={setSelectedRoomId}
+              onAddRoom={
+                Number.isFinite(projectId)
+                  ? () => openForCreateRoom(projectId)
+                  : undefined
+              }
             />
           </div>
           {rooms.length > 0 && <RoomLayout projectId={projectId} />}

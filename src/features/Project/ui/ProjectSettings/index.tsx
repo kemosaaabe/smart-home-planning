@@ -1,7 +1,8 @@
 import { type FC } from 'react';
-import { DoorOpen, Pencil, Trash2 } from 'lucide-react';
+import { DoorOpen, Pencil, Plus, Trash2 } from 'lucide-react';
 import type { Project } from '@/entities/Project';
 import type { Room } from '@/entities/Room';
+import { useRoomFormStore } from '@/features/Room';
 import {
   Dialog,
   DialogContent,
@@ -17,6 +18,7 @@ export interface ProjectSettingsProps {
   rooms?: Room[];
   onEdit: () => void;
   onDelete: () => void;
+  onDeleteRoom?: (room: Room) => void;
 }
 
 export const ProjectSettings: FC<ProjectSettingsProps> = ({
@@ -26,6 +28,7 @@ export const ProjectSettings: FC<ProjectSettingsProps> = ({
   rooms = [],
   onEdit,
   onDelete,
+  onDeleteRoom,
 }) => {
   const handleEdit = () => {
     onOpenChange(false);
@@ -37,6 +40,22 @@ export const ProjectSettings: FC<ProjectSettingsProps> = ({
     onDelete();
   };
 
+  const openForCreate = useRoomFormStore((s) => s.openForCreate);
+  const openForEdit = useRoomFormStore((s) => s.openForEdit);
+
+  const handleCreateRoom = () => {
+    if (project) openForCreate(project.id);
+  };
+
+  const handleEditRoom = (room: Room) => () => {
+    openForEdit(room);
+  };
+
+  const handleDeleteRoom = (room: Room) => (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDeleteRoom?.(room);
+  };
+
   if (project == null) return null;
 
   return (
@@ -45,19 +64,47 @@ export const ProjectSettings: FC<ProjectSettingsProps> = ({
         <DialogHeader>
           <DialogTitle>Действия с проектом</DialogTitle>
         </DialogHeader>
-        {rooms.length > 0 && (
-          <div className={styles.roomsSection}>
-            <h3 className={styles.roomsTitle}>Комнаты</h3>
+        <div className={styles.roomsSection}>
+          <h3 className={styles.roomsTitle}>Комнаты</h3>
+          {rooms.length > 0 ? (
             <ul className={styles.roomsList}>
               {rooms.map((room) => (
                 <li key={room.id} className={styles.roomItem}>
-                  <DoorOpen className={styles.roomIcon} aria-hidden />
-                  <span className={styles.roomName}>{room.name}</span>
+                  <span className={styles.roomItemTitle}>
+                    <DoorOpen className={styles.roomIcon} aria-hidden />
+                    <span className={styles.roomName}>{room.name}</span>
+                  </span>
+                  <span className={styles.roomItemActions}>
+                    <button
+                      type="button"
+                      className={styles.roomActionBtn}
+                      onClick={handleEditRoom(room)}
+                      aria-label="Редактировать комнату"
+                    >
+                      <Pencil className={styles.roomActionIcon} aria-hidden />
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.roomActionBtn}
+                      onClick={handleDeleteRoom(room)}
+                      aria-label="Удалить комнату"
+                    >
+                      <Trash2 className={styles.roomActionIcon} aria-hidden />
+                    </button>
+                  </span>
                 </li>
               ))}
             </ul>
-          </div>
-        )}
+          ) : null}
+          <button
+            type="button"
+            className={styles.createRoomTrigger}
+            onClick={handleCreateRoom}
+          >
+            <Plus className={styles.createRoomIcon} aria-hidden />
+            <span className={styles.createRoomLabel}>Создать комнату</span>
+          </button>
+        </div>
         <div className={styles.list}>
           <button
             type="button"
