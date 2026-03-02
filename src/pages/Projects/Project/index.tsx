@@ -132,6 +132,7 @@ export const ProjectPage: FC = () => {
           open={optionsModalOpen}
           onOpenChange={setOptionsModalOpen}
           project={project ?? null}
+          rooms={rooms}
           onEdit={handleEditProject}
           onDelete={handleDeleteClick}
         />
