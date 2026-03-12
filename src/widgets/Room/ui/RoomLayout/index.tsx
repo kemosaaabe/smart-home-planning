@@ -49,6 +49,9 @@ const ARROW_STEP_SHIFT = 10;
 const STAGE_WIDTH = 1200;
 const STAGE_HEIGHT = 800;
 
+/** При ширине viewport <= этого значения только просмотр + полноэкран, без редактирования */
+const VIEWPORT_VIEW_ONLY_MAX = 768;
+
 function getSnapTargets(shapes: DrawnShape[], excludeId: string): { x: number[]; y: number[] } {
   const x: number[] = [];
   const y: number[] = [];
@@ -198,6 +201,10 @@ export const RoomLayout: FC<RoomLayoutProps> = () => {
   useLayoutEffect(() => {
     shapesRef.current = shapes;
   }, [shapes]);
+
+  useEffect(() => {
+    if (containerSize.width <= VIEWPORT_VIEW_ONLY_MAX) setSelectedIds([]);
+  }, [containerSize.width]);
 
   // Синхронизируем цвет палитры с выбранной фигурой только при смене выделения,
   // не при каждом изменении shapes (иначе краш при перетаскивании якорей линии).
@@ -733,103 +740,105 @@ export const RoomLayout: FC<RoomLayoutProps> = () => {
     >
       <div ref={containerRef} className={styles.canvasWrap}>
         <div className={styles.toolbar}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                className={styles.toolBtn}
-                data-active={tool === 'cursor'}
-                onClick={() => setTool('cursor')}
-                aria-label="Курсор — выделение"
-                aria-pressed={tool === 'cursor'}
-              >
-                <MousePointer2 size={20} strokeWidth={2} />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">Курсор — выделение</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                className={styles.toolBtn}
-                data-active={snapEnabled}
-                onClick={() => setSnapEnabled((v) => !v)}
-                aria-label={snapEnabled ? 'Привязка включена' : 'Привязка выключена'}
-                aria-pressed={snapEnabled}
-              >
-                <Magnet size={20} strokeWidth={2} />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">Привязка</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                className={styles.toolBtn}
-                data-active={tool === 'rectangle'}
-                onClick={() => setTool('rectangle')}
-                aria-label="Прямоугольник"
-                aria-pressed={tool === 'rectangle'}
-              >
-                <Square size={20} strokeWidth={2} />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">Прямоугольник</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                className={styles.toolBtn}
-                data-active={tool === 'line'}
-                onClick={() => setTool('line')}
-                aria-label="Линия"
-                aria-pressed={tool === 'line'}
-              >
-                <Minus size={20} strokeWidth={2} />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">Линия</TooltipContent>
-          </Tooltip>
-          <div className={styles.colorPickerWrap} ref={colorPickerRef}>
+          <div className={styles.toolbarEdit}>
             <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  className={styles.colorBtn}
-                  onClick={() => setColorPickerOpen((v) => !v)}
-                  aria-label="Цвет"
-                  aria-expanded={colorPickerOpen}
-                  aria-haspopup="dialog"
-                >
-                  <Palette size={20} strokeWidth={2} />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">Цвет</TooltipContent>
-            </Tooltip>
-            {colorPickerOpen && (
-              <div className={styles.colorPickerPopover} role="dialog" aria-label="Выбор цвета">
-                <div className={styles.colorPickerPopoverHeader}>Цвет</div>
-                <HexColorPicker
-                  color={drawColor}
-                  onChange={(color) => {
-                    setDrawColor(color);
-                    if (selectedIds.length > 0) {
-                      pushToHistory(shapesRef.current);
-                      setShapes((prev) =>
-                        prev.map((s) =>
-                          selectedIds.includes(s.id) ? { ...s, color } : s
-                        )
-                      );
-                    }
-                  }}
-                  className={styles.colorPickerReactColorful}
-                />
-                <div className={styles.colorPickerHex}>{drawColor}</div>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    className={styles.toolBtn}
+                    data-active={tool === 'cursor'}
+                    onClick={() => setTool('cursor')}
+                    aria-label="Курсор — выделение"
+                    aria-pressed={tool === 'cursor'}
+                  >
+                    <MousePointer2 size={20} strokeWidth={2} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">Курсор — выделение</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    className={styles.toolBtn}
+                    data-active={snapEnabled}
+                    onClick={() => setSnapEnabled((v) => !v)}
+                    aria-label={snapEnabled ? 'Привязка включена' : 'Привязка выключена'}
+                    aria-pressed={snapEnabled}
+                  >
+                    <Magnet size={20} strokeWidth={2} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">Привязка</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    className={styles.toolBtn}
+                    data-active={tool === 'rectangle'}
+                    onClick={() => setTool('rectangle')}
+                    aria-label="Прямоугольник"
+                    aria-pressed={tool === 'rectangle'}
+                  >
+                    <Square size={20} strokeWidth={2} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">Прямоугольник</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    className={styles.toolBtn}
+                    data-active={tool === 'line'}
+                    onClick={() => setTool('line')}
+                    aria-label="Линия"
+                    aria-pressed={tool === 'line'}
+                  >
+                    <Minus size={20} strokeWidth={2} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">Линия</TooltipContent>
+              </Tooltip>
+              <div className={styles.colorPickerWrap} ref={colorPickerRef}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      className={styles.colorBtn}
+                      onClick={() => setColorPickerOpen((v) => !v)}
+                      aria-label="Цвет"
+                      aria-expanded={colorPickerOpen}
+                      aria-haspopup="dialog"
+                    >
+                      <Palette size={20} strokeWidth={2} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">Цвет</TooltipContent>
+                </Tooltip>
+                {colorPickerOpen && (
+                  <div className={styles.colorPickerPopover} role="dialog" aria-label="Выбор цвета">
+                    <div className={styles.colorPickerPopoverHeader}>Цвет</div>
+                    <HexColorPicker
+                      color={drawColor}
+                      onChange={(color) => {
+                        setDrawColor(color);
+                        if (selectedIds.length > 0) {
+                          pushToHistory(shapesRef.current);
+                          setShapes((prev) =>
+                            prev.map((s) =>
+                              selectedIds.includes(s.id) ? { ...s, color } : s
+                            )
+                          );
+                        }
+                      }}
+                      className={styles.colorPickerReactColorful}
+                    />
+                    <div className={styles.colorPickerHex}>{drawColor}</div>
+                  </div>
+                )}
               </div>
-            )}
           </div>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -854,15 +863,20 @@ export const RoomLayout: FC<RoomLayoutProps> = () => {
         <div className={styles.stageScaleWrap}>
           <div
             className={styles.stageScaleInner}
-            style={{
-              width: STAGE_WIDTH,
-              height: STAGE_HEIGHT,
-              transform: `scale(${scaleX}, ${scaleY})`,
-            }}
+            style={
+              containerSize.width <= VIEWPORT_VIEW_ONLY_MAX
+                ? { width: STAGE_WIDTH, height: STAGE_HEIGHT }
+                : {
+                    width: STAGE_WIDTH,
+                    height: STAGE_HEIGHT,
+                    transform: `scale(${scaleX}, ${scaleY})`,
+                  }
+            }
           >
             <Stage
               width={STAGE_WIDTH}
               height={STAGE_HEIGHT}
+              listening={containerSize.width > VIEWPORT_VIEW_ONLY_MAX}
               onMouseDown={handleStageMouseDown}
               onMouseMove={handleStageMouseMove}
               onMouseUp={handleStageMouseUp}
