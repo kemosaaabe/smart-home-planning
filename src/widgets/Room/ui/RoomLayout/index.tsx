@@ -72,6 +72,15 @@ function saveRoomLayoutState(projectId: number, roomId: number, state: RoomLayou
 
 const DEFAULT_COLOR = '#3b82f6';
 const MAX_UNDO_HISTORY = 50;
+
+/** Парсит строку в hex-цвет #rrggbb или null если невалидно */
+function parseHexColor(input: string): string | null {
+  const s = input.trim().replace(/^#/, '');
+  if (/^[0-9a-fA-F]{6}$/.test(s)) return `#${s}`;
+  if (/^[0-9a-fA-F]{3}$/.test(s))
+    return `#${s[0]}${s[0]}${s[1]}${s[1]}${s[2]}${s[2]}`;
+  return null;
+}
 const SNAP_THRESHOLD = 12;
 const LINE_HIT_PADDING = 36;
 const ARROW_STEP = 1;
@@ -226,6 +235,7 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [drawColor, setDrawColor] = useState(DEFAULT_COLOR);
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
+  const [hexInputValue, setHexInputValue] = useState(drawColor);
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const [shapes, setShapes] = useState<DrawnShape[]>([]);
   const [groups, setGroups] = useState<ShapeGroup[]>([]);
@@ -257,6 +267,12 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
   const canPersist = Number.isFinite(projectId) && roomId != null && Number.isFinite(roomId);
 
   useEffect(() => {
+    historyRef.current = [];
+    setTool('cursor');
+    setSnapEnabled(true);
+    setDrawColor(DEFAULT_COLOR);
+    setHexInputValue(DEFAULT_COLOR);
+    setColorPickerOpen(false);
     if (!Number.isFinite(projectId) || roomId == null || !Number.isFinite(roomId)) {
       setShapes([]);
       setGroups([]);
@@ -291,18 +307,8 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
   }, [selectedIds]);
 
   useEffect(() => {
-    if (!colorPickerOpen) return;
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        colorPickerRef.current &&
-        !colorPickerRef.current.contains(e.target as Node)
-      ) {
-        setColorPickerOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [colorPickerOpen]);
+    if (colorPickerOpen) setHexInputValue(drawColor);
+  }, [colorPickerOpen, drawColor]);
 
   const pushToHistory = useCallback((current: DrawnShape[]) => {
     const snapshot: DrawnShape[] = current.map((s) =>
@@ -313,6 +319,40 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
       historyRef.current.shift();
     }
   }, []);
+
+  const closeColorPickerAndSave = useCallback(() => {
+    const input = colorPickerRef.current?.querySelector<HTMLInputElement>('input[type="text"]');
+    const raw = input?.value?.trim() ?? '';
+    const color = parseHexColor(raw);
+    if (color) {
+      setDrawColor(color);
+      setHexInputValue(color);
+      if (selectedIds.length > 0) {
+        pushToHistory(shapesRef.current);
+        setShapes((prev) =>
+          prev.map((s) =>
+            selectedIds.includes(s.id) ? { ...s, color } : s
+          )
+        );
+      }
+    }
+    setColorPickerOpen(false);
+  }, [selectedIds, pushToHistory]);
+
+  useEffect(() => {
+    if (!colorPickerOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        !colorPickerRef.current ||
+        colorPickerRef.current.contains(e.target as Node)
+      ) {
+        return;
+      }
+      closeColorPickerAndSave();
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [colorPickerOpen, closeColorPickerAndSave]);
 
   // Сбрасываем выделение при начале рисования; курсор — рамка выделения
   const handleStageMouseDown = useCallback(
@@ -505,6 +545,15 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
   // Удаление по Backspace, отмена по Ctrl+Z, перемещение стрелками
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as Node | null;
+      if (
+        target &&
+        (target instanceof HTMLInputElement ||
+          target instanceof HTMLTextAreaElement ||
+          (target instanceof HTMLElement && target.isContentEditable))
+      ) {
+        return;
+      }
       if (e.key === 'Backspace') {
         if (selectedIds.length === 0) return;
         e.preventDefault();
@@ -882,7 +931,11 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
                     <button
                       type="button"
                       className={styles.colorBtn}
-                      onClick={() => setColorPickerOpen((v) => !v)}
+                      onClick={() =>
+                        colorPickerOpen
+                          ? closeColorPickerAndSave()
+                          : setColorPickerOpen(true)
+                      }
                       aria-label="Цвет"
                       aria-expanded={colorPickerOpen}
                       aria-haspopup="dialog"
@@ -899,6 +952,7 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
                       color={drawColor}
                       onChange={(color) => {
                         setDrawColor(color);
+                        setHexInputValue(color);
                         if (selectedIds.length > 0) {
                           pushToHistory(shapesRef.current);
                           setShapes((prev) =>
@@ -910,7 +964,37 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
                       }}
                       className={styles.colorPickerReactColorful}
                     />
-                    <div className={styles.colorPickerHex}>{drawColor}</div>
+                    <input
+                      type="text"
+                      className={styles.colorPickerHexInput}
+                      value={hexInputValue}
+                      onChange={(e) => setHexInputValue(e.target.value)}
+                      onBlur={(e) => {
+                        const raw = e.currentTarget.value.trim();
+                        const color = parseHexColor(raw);
+                        if (color) {
+                          setDrawColor(color);
+                          setHexInputValue(color);
+                          if (selectedIds.length > 0) {
+                            pushToHistory(shapesRef.current);
+                            setShapes((prev) =>
+                              prev.map((s) =>
+                                selectedIds.includes(s.id) ? { ...s, color } : s
+                              )
+                            );
+                          }
+                        } else {
+                          setHexInputValue(drawColor);
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.currentTarget.blur();
+                        }
+                      }}
+                      placeholder="#000000"
+                      aria-label="Hex-код цвета"
+                    />
                   </div>
                 )}
               </div>

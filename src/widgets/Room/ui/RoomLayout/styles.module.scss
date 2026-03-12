@@ -158,10 +158,27 @@
   margin-bottom: var(--spacing-xs);
 }
 
-.colorPickerHex {
+.colorPickerHexInput {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--spacing-xs) var(--spacing-sm);
   font-size: var(--font-size-body-s);
   font-family: ui-monospace, monospace;
   color: var(--text-primary);
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius);
+
+  &::placeholder {
+    color: var(--text-tertiary);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--ring);
+    box-shadow: 0 0 0 2px var(--ring);
+  }
 }
 
 .stage {
