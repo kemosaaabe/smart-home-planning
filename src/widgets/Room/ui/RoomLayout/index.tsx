@@ -6,14 +6,14 @@ import {
   useLayoutEffect,
   useEffect,
 } from 'react';
-import { Square, Minus, MousePointer2, Magnet, Palette, Maximize2, Minimize2 } from 'lucide-react';
+import { Square, Minus, MousePointer2, Magnet, Palette, Maximize2, Minimize2, Eraser } from 'lucide-react';
 import { HexColorPicker } from 'react-colorful';
 import { Stage, Layer, Rect, Line, Transformer } from 'react-konva';
 import type Konva from 'konva';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui';
 import styles from './styles.module.scss';
 
-export type DrawingTool = 'cursor' | 'rectangle' | 'line';
+export type DrawingTool = 'cursor' | 'rectangle' | 'line' | 'eraser';
 
 export interface DrawnRect {
   type: 'rect';
@@ -93,6 +93,9 @@ const STAGE_HEIGHT = 800;
 /** При ширине viewport <= этого значения только просмотр + полноэкран, без редактирования */
 const VIEWPORT_VIEW_ONLY_MAX = 768;
 
+/** Радиус кисти ластика в логических пикселях */
+const ERASER_BRUSH_RADIUS = 24;
+
 function getSnapTargets(shapes: DrawnShape[], excludeId: string): { x: number[]; y: number[] } {
   const x: number[] = [];
   const y: number[] = [];
@@ -155,6 +158,107 @@ function initCountersFromLoaded(shapes: DrawnShape[], groups: ShapeGroup[]): voi
 export interface ShapeGroup {
   id: string;
   childIds: string[];
+}
+
+/**
+ * Пересечение отрезка (x1,y1)-(x2,y2) с кругом (cx,cy,r).
+ * Возвращает интервалы t из [0,1], которые соответствуют частям отрезка ВНЕ круга (их оставляем).
+ */
+function getSegmentPartsOutsideCircle(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  cx: number,
+  cy: number,
+  r: number
+): Array<[number, number]> {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const A = x1 - cx;
+  const B = y1 - cy;
+  const a = dx * dx + dy * dy;
+  if (a < 1e-10) {
+    const d2 = A * A + B * B;
+    return d2 > r * r ? [[0, 1]] : [];
+  }
+  const b = 2 * (A * dx + B * dy);
+  const c = A * A + B * B - r * r;
+  const disc = b * b - 4 * a * c;
+  if (disc < 0) {
+    return c > 0 ? [[0, 1]] : [];
+  }
+  const sqrtDisc = Math.sqrt(disc);
+  const t1 = (-b - sqrtDisc) / (2 * a);
+  const t2 = (-b + sqrtDisc) / (2 * a);
+  const tMin = Math.max(0, Math.min(t1, t2));
+  const tMax = Math.min(1, Math.max(t1, t2));
+  if (tMin >= tMax) return c > 0 ? [[0, 1]] : [];
+  const out: Array<[number, number]> = [];
+  if (tMin > 0) out.push([0, tMin]);
+  if (tMax < 1) out.push([tMax, 1]);
+  return out;
+}
+
+/**
+ * Стирает часть отрезка (x1,y1)-(x2,y2) кругом (cx,cy,r); добавляет оставшиеся отрезки в result.
+ */
+function eraseSegment(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  cx: number,
+  cy: number,
+  r: number,
+  color: string,
+  result: DrawnShape[]
+): void {
+  const parts = getSegmentPartsOutsideCircle(x1, y1, x2, y2, cx, cy, r);
+  for (const [t0, t1] of parts) {
+    const px0 = x1 + t0 * (x2 - x1);
+    const py0 = y1 + t0 * (y2 - y1);
+    const px1 = x1 + t1 * (x2 - x1);
+    const py1 = y1 + t1 * (y2 - y1);
+    if (Math.hypot(px1 - px0, py1 - py0) >= 2) {
+      result.push({
+        type: 'line',
+        id: nextId(),
+        points: [px0, py0, px1, py1],
+        color,
+      });
+    }
+  }
+}
+
+/**
+ * Применяет ластик в точке (cx, cy): линии и рёбра прямоугольников разбиваются в местах пересечения с кругом.
+ */
+function applyEraserToShapes(shapes: DrawnShape[], cx: number, cy: number, r: number): DrawnShape[] {
+  const result: DrawnShape[] = [];
+  for (const s of shapes) {
+    if (s.type === 'rect') {
+      const { x, y, width, height, color } = s;
+      eraseSegment(x, y, x + width, y, cx, cy, r, color, result);
+      eraseSegment(x + width, y, x + width, y + height, cx, cy, r, color, result);
+      eraseSegment(x + width, y + height, x, y + height, cx, cy, r, color, result);
+      eraseSegment(x, y + height, x, y, cx, cy, r, color, result);
+      continue;
+    }
+    if (s.type === 'line' && s.points.length >= 4) {
+      const [x1, y1, x2, y2] = s.points;
+      eraseSegment(x1, y1, x2, y2, cx, cy, r, s.color, result);
+      continue;
+    }
+    result.push(s);
+  }
+  return result;
+}
+
+function cleanupGroupsAfterEraser(groups: ShapeGroup[], nextShapeIds: Set<string>): ShapeGroup[] {
+  return groups
+    .map((g) => ({ ...g, childIds: g.childIds.filter((id) => nextShapeIds.has(id)) }))
+    .filter((g) => g.childIds.length >= 2);
 }
 
 function computeGroupBounds(shapes: DrawnShape[], childIds: string[]): { x: number; y: number; width: number; height: number } {
@@ -240,6 +344,7 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
   const [shapes, setShapes] = useState<DrawnShape[]>([]);
   const [groups, setGroups] = useState<ShapeGroup[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [draggingLineId, setDraggingLineId] = useState<string | null>(null);
 
   const [draft, setDraft] = useState<DrawnRect | DrawnLine | null>(null);
   const [selectionBox, setSelectionBox] = useState<{
@@ -365,6 +470,16 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
       const x = pos.x;
       const y = pos.y;
 
+      if (tool === 'eraser') {
+        setSelectedIds([]);
+        startRef.current = { x, y };
+        pushToHistory(shapesRef.current);
+        const next = applyEraserToShapes(shapesRef.current, x, y, ERASER_BRUSH_RADIUS);
+        setShapes(next);
+        setGroups((prev) => cleanupGroupsAfterEraser(prev, new Set(next.map((s) => s.id))));
+        return;
+      }
+
       if (tool === 'cursor') {
         setSelectedIds([]);
         startRef.current = { x, y };
@@ -393,7 +508,7 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
         });
       }
     },
-    [tool, drawColor]
+    [tool, drawColor, pushToHistory]
   );
 
   const handleStageMouseMove = useCallback(
@@ -403,6 +518,13 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
       const pos = stage.getPointerPosition();
       if (!pos) return;
       const { x: sx, y: sy } = startRef.current ?? { x: pos.x, y: pos.y };
+
+      if (tool === 'eraser' && startRef.current !== null) {
+        const next = applyEraserToShapes(shapesRef.current, pos.x, pos.y, ERASER_BRUSH_RADIUS);
+        setShapes(next);
+        setGroups((prev) => cleanupGroupsAfterEraser(prev, new Set(next.map((s) => s.id))));
+        return;
+      }
 
       if (selectionBox !== null) {
         const w = pos.x - sx;
@@ -451,10 +573,14 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
         setDraft({ ...draft, points: [sx, sy, x, y] });
       }
     },
-    [draft, selectionBox]
+    [tool, draft, selectionBox]
   );
 
   const handleStageMouseUp = useCallback(() => {
+    if (tool === 'eraser' && startRef.current !== null) {
+      startRef.current = null;
+      return;
+    }
     if (selectionBox !== null) {
       const { x: rx, y: ry, width: rw, height: rh } = selectionBox;
       const ids: string[] = [];
@@ -501,7 +627,7 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
     });
     setDraft(null);
     startRef.current = null;
-  }, [draft, pushToHistory, selectionBox, shapes]);
+  }, [tool, draft, pushToHistory, selectionBox, shapes]);
 
   const selectedGroupId =
     (selectedIds.length >= 2 &&
@@ -520,6 +646,17 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
   const handleShapeClick = useCallback(
     (e: Konva.KonvaEventObject<Event>, id: string) => {
       e.cancelBubble = true;
+      if (tool === 'eraser') {
+        const stage = e.target.getStage();
+        const pos = stage?.getPointerPosition();
+        if (pos) {
+          pushToHistory(shapesRef.current);
+          const next = applyEraserToShapes(shapesRef.current, pos.x, pos.y, ERASER_BRUSH_RADIUS);
+          setShapes(next);
+          setGroups((prev) => cleanupGroupsAfterEraser(prev, new Set(next.map((s) => s.id))));
+        }
+        return;
+      }
       const group = getGroupContaining(id);
       if (group) {
         setSelectedIds([...group.childIds]);
@@ -527,7 +664,7 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
         setSelectedIds([id]);
       }
     },
-    [getGroupContaining]
+    [tool, getGroupContaining, pushToHistory]
   );
 
   const handleStageClick = useCallback(
@@ -694,6 +831,7 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
 
   const handleLineDragEnd = useCallback(
     (e: Konva.KonvaEventObject<DragEvent>, id: string) => {
+      setDraggingLineId(null);
       const node = e.target as Konva.Line;
       const dx = node.x();
       const dy = node.y();
@@ -925,6 +1063,21 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
                 </TooltipTrigger>
                 <TooltipContent side="bottom">Линия</TooltipContent>
               </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    className={styles.toolBtn}
+                    data-active={tool === 'eraser'}
+                    onClick={() => setTool('eraser')}
+                    aria-label="Ластик"
+                    aria-pressed={tool === 'eraser'}
+                  >
+                    <Eraser size={20} strokeWidth={2} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">Ластик</TooltipContent>
+              </Tooltip>
               <div className={styles.colorPickerWrap} ref={colorPickerRef}>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -1060,6 +1213,7 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
                     stroke={isSelected ? themeColors.selection : shape.color}
                     strokeWidth={4}
                     dash={isSelected ? [8, 4] : undefined}
+                    listening={tool !== 'eraser'}
                     draggable={isSelected}
                     ref={(node) => {
                       if (node) nodeRefsMap.current.set(shape.id, node);
@@ -1085,9 +1239,11 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
                   dash={isSelected ? [8, 4] : undefined}
                   lineCap="round"
                   lineJoin="round"
+                  listening={tool !== 'eraser'}
                   draggable={isSelected}
                   onClick={(e) => { e.cancelBubble = true; handleShapeClick(e, shape.id); }}
                   onTap={(e) => { e.cancelBubble = true; handleShapeClick(e, shape.id); }}
+                  onDragStart={() => setDraggingLineId(shape.id)}
                   onDragMove={(e) => handleLineDragMove(e, shape.id, shape.points)}
                   onDragEnd={(e) => handleLineDragEnd(e, shape.id)}
                 />
@@ -1116,8 +1272,8 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
                   />
                 );
               })()}
-            {/* Якоря для выбранной линии (только при единственной выбранной линии, не в группе) */}
-            {selectedIds.length === 1 && !selectedGroupId &&
+            {/* Якоря для выбранной линии (только при единственной выбранной линии, не в группе; скрыты при перетаскивании линии) */}
+            {selectedIds.length === 1 && !selectedGroupId && !draggingLineId &&
               (() => {
                 const lineShape = shapes.find(
                   (s) => s.id === selectedIds[0] && s.type === 'line'
