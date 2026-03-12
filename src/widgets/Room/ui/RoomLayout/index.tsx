@@ -10,6 +10,7 @@ import { Square, Minus, MousePointer2, Magnet, Palette, Maximize2, Minimize2 } f
 import { HexColorPicker } from 'react-colorful';
 import { Stage, Layer, Rect, Line, Transformer } from 'react-konva';
 import type Konva from 'konva';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui';
 import styles from './styles.module.scss';
 
 export type DrawingTool = 'cursor' | 'rectangle' | 'line';
@@ -732,58 +733,82 @@ export const RoomLayout: FC<RoomLayoutProps> = () => {
     >
       <div ref={containerRef} className={styles.canvasWrap}>
         <div className={styles.toolbar}>
-          <button
-            type="button"
-            className={styles.toolBtn}
-            data-active={tool === 'cursor'}
-            onClick={() => setTool('cursor')}
-            aria-label="Курсор — выделение"
-            aria-pressed={tool === 'cursor'}
-          >
-            <MousePointer2 size={20} strokeWidth={2} />
-          </button>
-          <button
-            type="button"
-            className={styles.toolBtn}
-            data-active={snapEnabled}
-            onClick={() => setSnapEnabled((v) => !v)}
-            aria-label={snapEnabled ? 'Привязка включена' : 'Привязка выключена'}
-            aria-pressed={snapEnabled}
-            title={snapEnabled ? 'Привязка к объектам включена' : 'Включить привязку'}
-          >
-            <Magnet size={20} strokeWidth={2} />
-          </button>
-          <button
-            type="button"
-            className={styles.toolBtn}
-            data-active={tool === 'rectangle'}
-            onClick={() => setTool('rectangle')}
-            aria-label="Прямоугольник"
-            aria-pressed={tool === 'rectangle'}
-          >
-            <Square size={20} strokeWidth={2} />
-          </button>
-          <button
-            type="button"
-            className={styles.toolBtn}
-            data-active={tool === 'line'}
-            onClick={() => setTool('line')}
-            aria-label="Линия"
-            aria-pressed={tool === 'line'}
-          >
-            <Minus size={20} strokeWidth={2} />
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                className={styles.toolBtn}
+                data-active={tool === 'cursor'}
+                onClick={() => setTool('cursor')}
+                aria-label="Курсор — выделение"
+                aria-pressed={tool === 'cursor'}
+              >
+                <MousePointer2 size={20} strokeWidth={2} />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Курсор — выделение</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                className={styles.toolBtn}
+                data-active={snapEnabled}
+                onClick={() => setSnapEnabled((v) => !v)}
+                aria-label={snapEnabled ? 'Привязка включена' : 'Привязка выключена'}
+                aria-pressed={snapEnabled}
+              >
+                <Magnet size={20} strokeWidth={2} />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Привязка</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                className={styles.toolBtn}
+                data-active={tool === 'rectangle'}
+                onClick={() => setTool('rectangle')}
+                aria-label="Прямоугольник"
+                aria-pressed={tool === 'rectangle'}
+              >
+                <Square size={20} strokeWidth={2} />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Прямоугольник</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                className={styles.toolBtn}
+                data-active={tool === 'line'}
+                onClick={() => setTool('line')}
+                aria-label="Линия"
+                aria-pressed={tool === 'line'}
+              >
+                <Minus size={20} strokeWidth={2} />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Линия</TooltipContent>
+          </Tooltip>
           <div className={styles.colorPickerWrap} ref={colorPickerRef}>
-            <button
-              type="button"
-              className={styles.colorBtn}
-              onClick={() => setColorPickerOpen((v) => !v)}
-              aria-label="Цвет рисования"
-              aria-expanded={colorPickerOpen}
-              aria-haspopup="dialog"
-            >
-              <Palette size={20} strokeWidth={2} />
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  className={styles.colorBtn}
+                  onClick={() => setColorPickerOpen((v) => !v)}
+                  aria-label="Цвет"
+                  aria-expanded={colorPickerOpen}
+                  aria-haspopup="dialog"
+                >
+                  <Palette size={20} strokeWidth={2} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Цвет</TooltipContent>
+            </Tooltip>
             {colorPickerOpen && (
               <div className={styles.colorPickerPopover} role="dialog" aria-label="Выбор цвета">
                 <div className={styles.colorPickerPopoverHeader}>Цвет</div>
@@ -806,19 +831,25 @@ export const RoomLayout: FC<RoomLayoutProps> = () => {
               </div>
             )}
           </div>
-          <button
-            type="button"
-            className={styles.toolBtn}
-            onClick={() => setIsFullscreen((v) => !v)}
-            aria-label={isFullscreen ? 'Выйти из полноэкранного режима' : 'На весь экран'}
-            title={isFullscreen ? 'Выйти из полноэкранного режима (Esc)' : 'На весь экран'}
-          >
-            {isFullscreen ? (
-              <Minimize2 size={20} strokeWidth={2} />
-            ) : (
-              <Maximize2 size={20} strokeWidth={2} />
-            )}
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                className={styles.toolBtn}
+                onClick={() => setIsFullscreen((v) => !v)}
+                aria-label={isFullscreen ? 'Выйти из полноэкранного режима' : 'На весь экран'}
+              >
+                {isFullscreen ? (
+                  <Minimize2 size={20} strokeWidth={2} />
+                ) : (
+                  <Maximize2 size={20} strokeWidth={2} />
+                )}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              {isFullscreen ? 'Свернуть' : 'Полный экран'}
+            </TooltipContent>
+          </Tooltip>
         </div>
         <div className={styles.stageScaleWrap}>
           <div
