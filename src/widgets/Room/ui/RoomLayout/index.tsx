@@ -198,12 +198,14 @@ export const RoomLayout: FC<RoomLayoutProps> = () => {
     shapesRef.current = shapes;
   }, [shapes]);
 
+  // Синхронизируем цвет палитры с выбранной фигурой только при смене выделения,
+  // не при каждом изменении shapes (иначе краш при перетаскивании якорей линии).
   useLayoutEffect(() => {
     if (selectedIds.length === 1) {
-      const shape = shapes.find((s) => s.id === selectedIds[0]);
+      const shape = shapesRef.current.find((s) => s.id === selectedIds[0]);
       if (shape && 'color' in shape) setDrawColor(shape.color);
     }
-  }, [selectedIds, shapes]);
+  }, [selectedIds]);
 
   useEffect(() => {
     if (!colorPickerOpen) return;
