@@ -243,7 +243,12 @@ export const ProjectPage: FC = () => {
               }
             />
           </div>
-          {rooms.length > 0 && <RoomLayout projectId={projectId} />}
+          {rooms.length > 0 && (
+              <RoomLayout
+                projectId={projectId}
+                roomId={selectedRoomId}
+              />
+            )}
         </section>
       </div>
     </Layout>

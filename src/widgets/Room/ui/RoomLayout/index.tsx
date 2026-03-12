@@ -36,6 +36,38 @@ export type DrawnShape = DrawnRect | DrawnLine;
 
 export interface RoomLayoutProps {
   projectId?: number;
+  roomId?: number | null;
+}
+
+const ROOM_LAYOUT_STORAGE_PREFIX = 'room-layout';
+
+export interface RoomLayoutPersistedState {
+  shapes: DrawnShape[];
+  groups: ShapeGroup[];
+}
+
+function getRoomLayoutStorageKey(projectId: number, roomId: number): string {
+  return `${ROOM_LAYOUT_STORAGE_PREFIX}:${projectId}:${roomId}`;
+}
+
+function loadRoomLayoutState(projectId: number, roomId: number): RoomLayoutPersistedState | null {
+  try {
+    const raw = localStorage.getItem(getRoomLayoutStorageKey(projectId, roomId));
+    if (!raw) return null;
+    const data = JSON.parse(raw) as RoomLayoutPersistedState;
+    if (!Array.isArray(data.shapes) || !Array.isArray(data.groups)) return null;
+    return { shapes: data.shapes, groups: data.groups };
+  } catch {
+    return null;
+  }
+}
+
+function saveRoomLayoutState(projectId: number, roomId: number, state: RoomLayoutPersistedState): void {
+  try {
+    localStorage.setItem(getRoomLayoutStorageKey(projectId, roomId), JSON.stringify(state));
+  } catch {
+    // ignore quota / private mode
+  }
 }
 
 const DEFAULT_COLOR = '#3b82f6';
@@ -95,6 +127,22 @@ let groupIdCounter = 0;
 const nextId = () => `shape-${++shapeIdCounter}`;
 const nextGroupId = () => `group-${++groupIdCounter}`;
 
+function initCountersFromLoaded(shapes: DrawnShape[], groups: ShapeGroup[]): void {
+  const numFromId = (id: string, prefix: string) => {
+    if (!id.startsWith(prefix)) return 0;
+    const n = parseInt(id.slice(prefix.length), 10);
+    return Number.isFinite(n) ? n : 0;
+  };
+  shapes.forEach((s) => {
+    const n = numFromId(s.id, 'shape-');
+    if (n > shapeIdCounter) shapeIdCounter = n;
+  });
+  groups.forEach((g) => {
+    const n = numFromId(g.id, 'group-');
+    if (n > groupIdCounter) groupIdCounter = n;
+  });
+}
+
 export interface ShapeGroup {
   id: string;
   childIds: string[];
@@ -130,7 +178,7 @@ function computeGroupBounds(shapes: DrawnShape[], childIds: string[]): { x: numb
   };
 }
 
-export const RoomLayout: FC<RoomLayoutProps> = () => {
+export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = useState({ width: 800, height: 500 });
   const [themeColors, setThemeColors] = useState({
@@ -205,6 +253,33 @@ export const RoomLayout: FC<RoomLayoutProps> = () => {
   useEffect(() => {
     if (containerSize.width <= VIEWPORT_VIEW_ONLY_MAX) setSelectedIds([]);
   }, [containerSize.width]);
+
+  const canPersist = Number.isFinite(projectId) && roomId != null && Number.isFinite(roomId);
+
+  useEffect(() => {
+    if (!Number.isFinite(projectId) || roomId == null || !Number.isFinite(roomId)) {
+      setShapes([]);
+      setGroups([]);
+      setSelectedIds([]);
+      return;
+    }
+    const state = loadRoomLayoutState(projectId!, roomId!);
+    if (state) {
+      setShapes(state.shapes);
+      setGroups(state.groups);
+      setSelectedIds([]);
+      initCountersFromLoaded(state.shapes, state.groups);
+    } else {
+      setShapes([]);
+      setGroups([]);
+      setSelectedIds([]);
+    }
+  }, [projectId, roomId]);
+
+  useEffect(() => {
+    if (!canPersist) return;
+    saveRoomLayoutState(projectId!, roomId!, { shapes, groups });
+  }, [canPersist, projectId, roomId, shapes, groups]);
 
   // Синхронизируем цвет палитры с выбранной фигурой только при смене выделения,
   // не при каждом изменении shapes (иначе краш при перетаскивании якорей линии).
