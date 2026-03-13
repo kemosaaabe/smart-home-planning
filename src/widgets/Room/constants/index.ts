@@ -1,6 +1,6 @@
 export const roomLayoutStoragePrefix = 'room-layout';
 
-export const defaultColor = '#3b82f6';
+export const defaultColor = '#b3b9c4';
 export const maxUndoHistory = 50;
 
 export const snapThreshold = 12;
