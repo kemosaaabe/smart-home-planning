@@ -6,7 +6,7 @@ import {
   useLayoutEffect,
   useEffect,
 } from 'react';
-import { Square, Minus, MousePointer2, Magnet, Palette, Maximize2, Minimize2, Eraser } from 'lucide-react';
+import { Square, Minus, MousePointer2, Magnet, Palette, Maximize2, Minimize2, Eraser, Sofa } from 'lucide-react';
 import { HexColorPicker } from 'react-colorful';
 import { Stage, Layer, Rect, Line, Transformer } from 'react-konva';
 import type Konva from 'konva';
@@ -37,6 +37,7 @@ import {
   cleanupGroupsAfterEraser,
   computeGroupBounds,
 } from '../../lib';
+import { FurnitureListModal } from '@/features/Furniture';
 import styles from './styles.module.scss';
 
 export type { DrawingTool, DrawnRect, DrawnLine, DrawnShape, ShapeGroup, RoomLayoutProps, RoomLayoutPersistedState } from '../../types';
@@ -95,6 +96,7 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
   const [groups, setGroups] = useState<ShapeGroup[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [draggingLineId, setDraggingLineId] = useState<string | null>(null);
+  const [furnitureModalOpen, setFurnitureModalOpen] = useState(false);
 
   const [draft, setDraft] = useState<DrawnRect | DrawnLine | null>(null);
   const [selectionBox, setSelectionBox] = useState<{
@@ -922,6 +924,25 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
             </TooltipContent>
           </Tooltip>
         </div>
+        <div className={styles.toolbarRight}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                className={styles.toolBtn}
+                onClick={() => setFurnitureModalOpen(true)}
+                aria-label="Мебель"
+              >
+                <Sofa size={20} strokeWidth={2} />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Мебель</TooltipContent>
+          </Tooltip>
+        </div>
+        <FurnitureListModal
+          open={furnitureModalOpen}
+          onOpenChange={setFurnitureModalOpen}
+        />
         <div className={styles.stageScaleWrap}>
           <div
             className={styles.stageScaleInner}

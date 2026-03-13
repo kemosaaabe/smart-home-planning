@@ -69,6 +69,26 @@
   gap: var(--spacing-xs);
 }
 
+.toolbarRight {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  background: var(--background);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border);
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
 .toolBtn {
   display: flex;
   align-items: center;
