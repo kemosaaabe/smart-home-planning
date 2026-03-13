@@ -1,9 +1,25 @@
 .content {
   max-width: 480px;
-  overflow: auto;
+  height: 85vh;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
 }
 
 .grid {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
   display: grid;
   grid-template-columns: repeat(3, minmax(110px, 1fr));
   gap: var(--spacing-sm);

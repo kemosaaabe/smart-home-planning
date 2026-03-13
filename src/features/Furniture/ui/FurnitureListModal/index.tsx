@@ -20,20 +20,22 @@ export const FurnitureListModal: FC<FurnitureListModalProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={styles.content}>
-        <DialogHeader>
-          <DialogTitle>Мебель</DialogTitle>
-        </DialogHeader>
-        <div className={styles.grid}>
-          {furnitureList.map((item) => (
-            <FurnitureCard
-              key={item.id}
-              item={item}
-              onClick={() => {
-                // TODO: добавить мебель на план
-                onOpenChange(false);
-              }}
-            />
-          ))}
+        <div className={styles.wrapper}>
+          <DialogHeader>
+            <DialogTitle>Мебель</DialogTitle>
+          </DialogHeader>
+          <div className={styles.grid}>
+            {furnitureList.map((item) => (
+              <FurnitureCard
+                key={item.id}
+                item={item}
+                onClick={() => {
+                  // TODO: добавить мебель на план
+                  onOpenChange(false);
+                }}
+              />
+            ))}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
