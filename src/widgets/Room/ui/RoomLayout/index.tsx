@@ -1,13 +1,9 @@
-import {
-  type FC,
-  useState,
-  useRef,
-  useCallback,
-  useLayoutEffect,
-  useEffect,
-} from 'react';
-import { Stage, Layer, Rect, Line, Transformer } from 'react-konva';
+import { type FC, useState, useRef, useCallback, useLayoutEffect, useEffect, useMemo } from 'react';
+import { Stage, Layer, Rect, Line, Transformer, Image as KonvaImage } from 'react-konva';
 import type Konva from 'konva';
+import { ToolbarTools, ToolbarObjects } from '@/features/Room';
+import { FurnitureListModal } from '@/features/Furniture';
+import { furnitureList, type FurnitureItem } from '@/entities/Furniture';
 import type { DrawingTool, DrawnRect, DrawnLine, DrawnShape, ShapeGroup, RoomLayoutProps } from '../../types';
 import {
   defaultColor,
@@ -34,8 +30,6 @@ import {
   cleanupGroupsAfterEraser,
   computeGroupBounds,
 } from '../../lib';
-import { ToolbarTools, ToolbarObjects } from '@/features/Room';
-import { FurnitureListModal } from '@/features/Furniture';
 import styles from './styles.module.scss';
 
 export type { DrawingTool, DrawnRect, DrawnLine, DrawnShape, ShapeGroup, RoomLayoutProps, RoomLayoutPersistedState } from '../../types';
@@ -110,10 +104,32 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
   const didMarqueeRef = useRef(false);
   const historyRef = useRef<DrawnShape[][]>([]);
   const shapesRef = useRef<DrawnShape[]>(shapes);
+  const furnitureImagesRef = useRef<Map<string, HTMLImageElement>>(new Map());
 
   useLayoutEffect(() => {
     shapesRef.current = shapes;
   }, [shapes]);
+
+  const furnitureById = useMemo(() => {
+    const map = new Map<string, FurnitureItem>();
+    furnitureList.forEach((item) => {
+      map.set(item.id, item);
+    });
+    return map;
+  }, []);
+
+  const getFurnitureImage = useCallback(
+    (item: FurnitureItem): HTMLImageElement => {
+      let img = furnitureImagesRef.current.get(item.id);
+      if (!img) {
+        img = new window.Image();
+        img.src = item.imagePath;
+        furnitureImagesRef.current.set(item.id, img);
+      }
+      return img;
+    },
+    []
+  );
 
   useEffect(() => {
     if (containerSize.width <= viewportViewOnlyMax) setSelectedIds([]);
@@ -174,6 +190,33 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
       historyRef.current.shift();
     }
   }, []);
+
+  const handleAddFurniture = useCallback(
+    (item: FurnitureItem) => {
+      const width = 56;
+      const height = 56;
+      const x = (stageWidth - width) / 2;
+      const y = (stageHeight - height) / 2;
+      setShapes((prev) => {
+        pushToHistory(prev);
+        return [
+          ...prev,
+          {
+            type: 'rect',
+            id: nextId(),
+            x,
+            y,
+            width,
+            height,
+            color: defaultColor,
+            objectType: 'furniture',
+            objectId: item.id,
+          },
+        ];
+      });
+    },
+    [pushToHistory]
+  );
 
   const handleColorChange = useCallback(
     (color: string) => {
@@ -683,6 +726,7 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
             y: rect.y(),
             width: Math.max(5, rect.width() * scaleX),
             height: Math.max(5, rect.height() * scaleY),
+            rotation: rect.rotation(),
           };
         });
       });
@@ -789,6 +833,7 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
         <FurnitureListModal
           open={furnitureModalOpen}
           onOpenChange={setFurnitureModalOpen}
+          onSelect={handleAddFurniture}
         />
         <div className={styles.stageScaleWrap}>
           <div
@@ -819,29 +864,56 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
             {shapes.map((shape) => {
               if (shape.type === 'rect') {
                 const isSelected = selectedIds.includes(shape.id);
+                const isFurniture = shape.objectType === 'furniture' && !!shape.objectId;
+                const furnitureItem =
+                  isFurniture && shape.objectId ? furnitureById.get(shape.objectId) : undefined;
+
                 return (
-                  <Rect
-                    key={shape.id}
-                    name={shape.id}
-                    x={shape.x}
-                    y={shape.y}
-                    width={shape.width}
-                    height={shape.height}
-                    fill={undefined}
-                    stroke={isSelected ? themeColors.selection : shape.color}
-                    strokeWidth={4}
-                    dash={isSelected ? [8, 4] : undefined}
-                    listening={tool !== 'eraser'}
-                    draggable={isSelected}
-                    ref={(node) => {
-                      if (node) nodeRefsMap.current.set(shape.id, node);
-                      else nodeRefsMap.current.delete(shape.id);
-                    }}
-                    onClick={(e) => handleShapeClick(e, shape.id)}
-                    onTap={(e) => handleShapeClick(e, shape.id)}
-                    onDragMove={(e) => handleRectDragMove(e, shape.id, shape.width, shape.height)}
-                    onDragEnd={(e) => handleRectDragEnd(e, shape.id)}
-                  />
+                  <>
+                    <Rect
+                      key={shape.id}
+                      name={shape.id}
+                      x={shape.x}
+                      y={shape.y}
+                      width={shape.width}
+                      height={shape.height}
+                      rotation={shape.rotation ?? 0}
+                      fill={undefined}
+                      stroke={
+                        isSelected
+                          ? themeColors.selection
+                          : isFurniture
+                          ? 'transparent'
+                          : shape.color
+                      }
+                      strokeWidth={isSelected ? 4 : isFurniture ? 0 : 4}
+                      dash={isSelected ? [8, 4] : undefined}
+                      listening={tool !== 'eraser'}
+                      draggable={isSelected}
+                      ref={(node) => {
+                        if (node) nodeRefsMap.current.set(shape.id, node);
+                        else nodeRefsMap.current.delete(shape.id);
+                      }}
+                      onClick={(e) => handleShapeClick(e, shape.id)}
+                      onTap={(e) => handleShapeClick(e, shape.id)}
+                      onDragMove={(e) =>
+                        handleRectDragMove(e, shape.id, shape.width, shape.height)
+                      }
+                      onDragEnd={(e) => handleRectDragEnd(e, shape.id)}
+                    />
+                    {furnitureItem && (
+                      <KonvaImage
+                        key={`${shape.id}-img`}
+                        x={shape.x}
+                        y={shape.y}
+                        width={shape.width}
+                        height={shape.height}
+                        rotation={shape.rotation ?? 0}
+                        image={getFurnitureImage(furnitureItem)}
+                        listening={false}
+                      />
+                    )}
+                  </>
                 );
               }
               const isSelected = selectedIds.includes(shape.id);

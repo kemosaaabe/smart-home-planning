@@ -1,4 +1,4 @@
-import type { DrawnShape, ShapeGroup, RoomLayoutPersistedState } from '../types';
+import type { DrawnShape, ShapeGroup, RoomLayoutPersistedState, DrawnRect } from '../types';
 import { roomLayoutStoragePrefix } from '../constants';
 
 let shapeIdCounter = 0;
@@ -192,7 +192,12 @@ export function applyEraserToShapes(
   const result: DrawnShape[] = [];
   for (const s of shapes) {
     if (s.type === 'rect') {
-      const { x, y, width, height, color } = s;
+      const rect = s as DrawnRect;
+      if (rect.objectType === 'furniture' || rect.objectType === 'device') {
+        result.push(rect);
+        continue;
+      }
+      const { x, y, width, height, color } = rect;
       eraseSegment(x, y, x + width, y, cx, cy, r, color, result);
       eraseSegment(x + width, y, x + width, y + height, cx, cy, r, color, result);
       eraseSegment(x + width, y + height, x, y + height, cx, cy, r, color, result);

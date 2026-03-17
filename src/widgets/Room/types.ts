@@ -8,6 +8,9 @@ export interface DrawnRect {
   width: number;
   height: number;
   color: string;
+  objectType?: 'furniture' | 'device';
+  objectId?: string;
+  rotation?: number;
 }
 
 export interface DrawnLine {
