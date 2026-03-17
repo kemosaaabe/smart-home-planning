@@ -1,9 +1,11 @@
-import { type FC, useState, useRef, useCallback, useLayoutEffect, useEffect, useMemo } from 'react';
+import { type FC, useState, useRef, useCallback, useLayoutEffect, useEffect, useMemo, Fragment } from 'react';
 import { Stage, Layer, Rect, Line, Transformer, Image as KonvaImage } from 'react-konva';
 import type Konva from 'konva';
 import { ToolbarTools, ToolbarObjects } from '@/features/Room';
 import { FurnitureListModal } from '@/features/Furniture';
+import { DeviceListModal } from '@/features/Device';
 import { furnitureList, type FurnitureItem } from '@/entities/Furniture';
+import { deviceList, type DeviceItem } from '@/entities/Device';
 import type { DrawingTool, DrawnRect, DrawnLine, DrawnShape, ShapeGroup, RoomLayoutProps } from '../../types';
 import {
   defaultColor,
@@ -89,6 +91,7 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [draggingLineId, setDraggingLineId] = useState<string | null>(null);
   const [furnitureModalOpen, setFurnitureModalOpen] = useState(false);
+  const [deviceModalOpen, setDeviceModalOpen] = useState(false);
 
   const [draft, setDraft] = useState<DrawnRect | DrawnLine | null>(null);
   const [selectionBox, setSelectionBox] = useState<{
@@ -105,6 +108,7 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
   const historyRef = useRef<DrawnShape[][]>([]);
   const shapesRef = useRef<DrawnShape[]>(shapes);
   const furnitureImagesRef = useRef<Map<string, HTMLImageElement>>(new Map());
+  const deviceImagesRef = useRef<Map<string, HTMLImageElement>>(new Map());
 
   useLayoutEffect(() => {
     shapesRef.current = shapes;
@@ -118,6 +122,14 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
     return map;
   }, []);
 
+  const deviceById = useMemo(() => {
+    const map = new Map<string, DeviceItem>();
+    deviceList.forEach((item) => {
+      map.set(item.id, item);
+    });
+    return map;
+  }, []);
+
   const getFurnitureImage = useCallback(
     (item: FurnitureItem): HTMLImageElement => {
       let img = furnitureImagesRef.current.get(item.id);
@@ -125,6 +137,19 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
         img = new window.Image();
         img.src = item.imagePath;
         furnitureImagesRef.current.set(item.id, img);
+      }
+      return img;
+    },
+    []
+  );
+
+  const getDeviceImage = useCallback(
+    (item: DeviceItem): HTMLImageElement => {
+      let img = deviceImagesRef.current.get(item.id);
+      if (!img) {
+        img = new window.Image();
+        img.src = item.imagePath;
+        deviceImagesRef.current.set(item.id, img);
       }
       return img;
     },
@@ -210,6 +235,33 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
             height,
             color: defaultColor,
             objectType: 'furniture',
+            objectId: item.id,
+          },
+        ];
+      });
+    },
+    [pushToHistory]
+  );
+
+  const handleAddDevice = useCallback(
+    (item: DeviceItem) => {
+      const width = 56;
+      const height = 56;
+      const x = (stageWidth - width) / 2;
+      const y = (stageHeight - height) / 2;
+      setShapes((prev) => {
+        pushToHistory(prev);
+        return [
+          ...prev,
+          {
+            type: 'rect',
+            id: nextId(),
+            x,
+            y,
+            width,
+            height,
+            color: defaultColor,
+            objectType: 'device',
             objectId: item.id,
           },
         ];
@@ -829,11 +881,19 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
           isFullscreen={isFullscreen}
           setIsFullscreen={setIsFullscreen}
         />
-        <ToolbarObjects onOpenFurniture={() => setFurnitureModalOpen(true)} />
+        <ToolbarObjects
+          onOpenFurniture={() => setFurnitureModalOpen(true)}
+          onOpenDevices={() => setDeviceModalOpen(true)}
+        />
         <FurnitureListModal
           open={furnitureModalOpen}
           onOpenChange={setFurnitureModalOpen}
           onSelect={handleAddFurniture}
+        />
+        <DeviceListModal
+          open={deviceModalOpen}
+          onOpenChange={setDeviceModalOpen}
+          onSelect={handleAddDevice}
         />
         <div className={styles.stageScaleWrap}>
           <div
@@ -865,13 +925,16 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
               if (shape.type === 'rect') {
                 const isSelected = selectedIds.includes(shape.id);
                 const isFurniture = shape.objectType === 'furniture' && !!shape.objectId;
+                const isDevice = shape.objectType === 'device' && !!shape.objectId;
                 const furnitureItem =
                   isFurniture && shape.objectId ? furnitureById.get(shape.objectId) : undefined;
+                const deviceItem =
+                  isDevice && shape.objectId ? deviceById.get(shape.objectId) : undefined;
+                const isPlacedObject = isFurniture || isDevice;
 
                 return (
-                  <>
+                  <Fragment key={shape.id}>
                     <Rect
-                      key={shape.id}
                       name={shape.id}
                       x={shape.x}
                       y={shape.y}
@@ -882,11 +945,11 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
                       stroke={
                         isSelected
                           ? themeColors.selection
-                          : isFurniture
+                          : isPlacedObject
                           ? 'transparent'
                           : shape.color
                       }
-                      strokeWidth={isSelected ? 4 : isFurniture ? 0 : 4}
+                      strokeWidth={isSelected ? 4 : isPlacedObject ? 0 : 4}
                       dash={isSelected ? [8, 4] : undefined}
                       listening={tool !== 'eraser'}
                       draggable={isSelected}
@@ -913,7 +976,19 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
                         listening={false}
                       />
                     )}
-                  </>
+                    {deviceItem && (
+                      <KonvaImage
+                        key={`${shape.id}-device-img`}
+                        x={shape.x}
+                        y={shape.y}
+                        width={shape.width}
+                        height={shape.height}
+                        rotation={shape.rotation ?? 0}
+                        image={getDeviceImage(deviceItem)}
+                        listening={false}
+                      />
+                    )}
+                  </Fragment>
                 );
               }
               const isSelected = selectedIds.includes(shape.id);
