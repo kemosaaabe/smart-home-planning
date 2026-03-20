@@ -7,6 +7,10 @@
   overflow: hidden;
 }
 
+.infoContent {
+  max-width: 520px;
+}
+
 .wrapper {
   display: flex;
   flex-direction: column;
@@ -24,4 +28,29 @@
   grid-template-columns: repeat(3, minmax(110px, 1fr));
   gap: var(--spacing-sm);
   margin-top: var(--spacing-sm);
+}
+
+.infoDescription {
+  margin-top: var(--spacing-xs);
+}
+
+.infoBlock {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+}
+
+.infoBlockTitle {
+  margin: 0 0 var(--spacing-xs);
+  font-size: var(--font-size-body-m);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.infoBlockText {
+  margin: 0;
+  font-size: var(--font-size-body-s);
+  line-height: var(--line-height-body-s);
+  color: var(--text-secondary);
 }

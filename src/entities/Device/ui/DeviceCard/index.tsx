@@ -1,13 +1,15 @@
 import { type FC } from 'react';
+import { Info } from 'lucide-react';
 import type { DeviceItem } from '../../model/types';
 import styles from './styles.module.scss';
 
 export interface DeviceCardProps {
   item: DeviceItem;
   onClick?: () => void;
+  onInfoClick?: (item: DeviceItem) => void;
 }
 
-export const DeviceCard: FC<DeviceCardProps> = ({ item, onClick }) => {
+export const DeviceCard: FC<DeviceCardProps> = ({ item, onClick, onInfoClick }) => {
   return (
     <div
       className={styles.card}
@@ -25,6 +27,19 @@ export const DeviceCard: FC<DeviceCardProps> = ({ item, onClick }) => {
           : undefined
       }
     >
+      {onInfoClick != null && (
+        <button
+          type="button"
+          className={styles.infoButton}
+          aria-label={`Информация об устройстве ${item.name}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onInfoClick(item);
+          }}
+        >
+          <Info className={styles.infoIcon} />
+        </button>
+      )}
       <div className={styles.imageWrap}>
         <img
           src={item.imagePath}
