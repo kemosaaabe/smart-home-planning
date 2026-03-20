@@ -12,6 +12,9 @@ export const Header: FC = () => {
           Умный дом
         </Link>
         <nav className={styles.nav}>
+          <Link to="/articles" className={styles.navLink}>
+            Статьи
+          </Link>
           <Link to="/projects" className={styles.navLink}>
             Проекты
           </Link>

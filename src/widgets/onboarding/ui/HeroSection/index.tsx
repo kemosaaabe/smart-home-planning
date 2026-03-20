@@ -25,6 +25,9 @@ export const HeroSection: FC = () => {
           <Button variant="outline" size="lg" asChild>
             <Link to="/projects">Перейти к проектам</Link>
           </Button>
+          <Button variant="outline" size="lg" asChild>
+            <Link to="/articles">Статьи и гайды</Link>
+          </Button>
         </div>
       </div>
     </section>
