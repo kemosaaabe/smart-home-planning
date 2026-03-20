@@ -21,6 +21,7 @@ export const ToolbarObjects: FC<ToolbarObjectsProps> = ({
             className={styles.toolBtn}
             onClick={onOpenFurniture}
             aria-label="Мебель"
+            data-tutorial="tutorial-open-furniture"
           >
             <Sofa size={20} strokeWidth={2} />
           </button>
@@ -34,6 +35,7 @@ export const ToolbarObjects: FC<ToolbarObjectsProps> = ({
             className={styles.toolBtn}
             onClick={onOpenDevices}
             aria-label="Умные устройства"
+            data-tutorial="tutorial-open-devices"
           >
             <Smartphone size={20} strokeWidth={2} />
           </button>

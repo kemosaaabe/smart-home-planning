@@ -1,0 +1,63 @@
+.page {
+  padding: var(--spacing-lg) var(--spacing-md);
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: var(--spacing-lg);
+}
+
+.title {
+  margin: 0 0 var(--spacing-xs);
+  color: var(--text-primary);
+  font-size: var(--font-size-h2);
+  font-weight: 700;
+  line-height: var(--line-height-h2);
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-body-m);
+}
+
+.topActions {
+  margin-top: var(--spacing-md);
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.rooms {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: var(--spacing-md);
+  min-height: 640px;
+}
+
+.roomsCol {
+  min-width: 0;
+}
+
+.empty {
+  border: 1px dashed var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+}
+
+.emptyText {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 980px) {
+  .rooms {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+}

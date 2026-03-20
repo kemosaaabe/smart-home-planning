@@ -48,6 +48,7 @@ export const ToolbarTools: FC<ToolbarToolsProps> = ({
               type="button"
               className={styles.toolBtn}
               data-active={tool === 'cursor'}
+              data-tutorial="tutorial-tool-cursor"
               onClick={() => setTool('cursor')}
               aria-label="Курсор — выделение"
               aria-pressed={tool === 'cursor'}
@@ -63,6 +64,7 @@ export const ToolbarTools: FC<ToolbarToolsProps> = ({
               type="button"
               className={styles.toolBtn}
               data-active={snapEnabled}
+              data-tutorial="tutorial-tool-snap"
               onClick={() => setSnapEnabled((v) => !v)}
               aria-label={snapEnabled ? 'Привязка включена' : 'Привязка выключена'}
               aria-pressed={snapEnabled}
@@ -78,6 +80,7 @@ export const ToolbarTools: FC<ToolbarToolsProps> = ({
               type="button"
               className={styles.toolBtn}
               data-active={tool === 'rectangle'}
+              data-tutorial="tutorial-tool-rectangle"
               onClick={() => setTool('rectangle')}
               aria-label="Прямоугольник"
               aria-pressed={tool === 'rectangle'}
@@ -93,6 +96,7 @@ export const ToolbarTools: FC<ToolbarToolsProps> = ({
               type="button"
               className={styles.toolBtn}
               data-active={tool === 'line'}
+              data-tutorial="tutorial-tool-line"
               onClick={() => setTool('line')}
               aria-label="Линия"
               aria-pressed={tool === 'line'}
@@ -108,6 +112,7 @@ export const ToolbarTools: FC<ToolbarToolsProps> = ({
               type="button"
               className={styles.toolBtn}
               data-active={tool === 'eraser'}
+              data-tutorial="tutorial-tool-eraser"
               onClick={() => setTool('eraser')}
               aria-label="Ластик"
               aria-pressed={tool === 'eraser'}
@@ -123,6 +128,7 @@ export const ToolbarTools: FC<ToolbarToolsProps> = ({
               <button
                 type="button"
                 className={styles.colorBtn}
+                data-tutorial="tutorial-tool-color"
                 onClick={() =>
                   colorPickerOpen ? closeColorPickerAndSave() : setColorPickerOpen(true)
                 }
@@ -164,6 +170,7 @@ export const ToolbarTools: FC<ToolbarToolsProps> = ({
           <button
             type="button"
             className={styles.toolBtn}
+            data-tutorial="tutorial-tool-fullscreen"
             onClick={() => setIsFullscreen((v) => !v)}
             aria-label={isFullscreen ? 'Выйти из полноэкранного режима' : 'На весь экран'}
           >

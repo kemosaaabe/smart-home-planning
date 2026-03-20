@@ -30,6 +30,12 @@ export interface ShapeGroup {
 export interface RoomLayoutProps {
   projectId?: number;
   roomId?: number | null;
+  onRectangleCreated?: () => void;
+  onFurnitureAdded?: () => void;
+  onDeviceAdded?: () => void;
+  forcedTool?: DrawingTool;
+  openFurnitureSignal?: number;
+  openDevicesSignal?: number;
 }
 
 export interface RoomLayoutPersistedState {

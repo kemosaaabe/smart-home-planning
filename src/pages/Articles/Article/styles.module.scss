@@ -57,6 +57,18 @@
   margin: 0 0 var(--spacing-md);
 }
 
+.body a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  font-weight: 500;
+
+  &:hover {
+    color: var(--color-primary-hover);
+  }
+}
+
 .body ul {
   margin: 0 0 var(--spacing-md);
   padding-left: 0;

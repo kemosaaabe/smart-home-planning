@@ -36,7 +36,16 @@ import styles from './styles.module.scss';
 
 export type { DrawingTool, DrawnRect, DrawnLine, DrawnShape, ShapeGroup, RoomLayoutProps, RoomLayoutPersistedState } from '../../types';
 
-export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
+export const RoomLayout: FC<RoomLayoutProps> = ({
+  projectId,
+  roomId,
+  onRectangleCreated,
+  onFurnitureAdded,
+  onDeviceAdded,
+  forcedTool,
+  openFurnitureSignal,
+  openDevicesSignal,
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = useState({ width: 800, height: 500 });
   const [themeColors, setThemeColors] = useState({
@@ -160,6 +169,21 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
     if (containerSize.width <= viewportViewOnlyMax) setSelectedIds([]);
   }, [containerSize.width]);
 
+  useEffect(() => {
+    if (forcedTool == null) return;
+    setTool(forcedTool);
+  }, [forcedTool]);
+
+  useEffect(() => {
+    if (openFurnitureSignal == null || openFurnitureSignal <= 0) return;
+    setFurnitureModalOpen(true);
+  }, [openFurnitureSignal]);
+
+  useEffect(() => {
+    if (openDevicesSignal == null || openDevicesSignal <= 0) return;
+    setDeviceModalOpen(true);
+  }, [openDevicesSignal]);
+
   const canPersist = Number.isFinite(projectId) && roomId != null && Number.isFinite(roomId);
 
   useEffect(() => {
@@ -239,8 +263,9 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
           },
         ];
       });
+      onFurnitureAdded?.();
     },
-    [pushToHistory]
+    [pushToHistory, onFurnitureAdded]
   );
 
   const handleAddDevice = useCallback(
@@ -266,8 +291,9 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
           },
         ];
       });
+      onDeviceAdded?.();
     },
-    [pushToHistory]
+    [pushToHistory, onDeviceAdded]
   );
 
   const handleColorChange = useCallback(
@@ -487,9 +513,12 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
       pushToHistory(prev);
       return [...prev, draft];
     });
+    if (draft.type === 'rect' && draft.objectType == null) {
+      onRectangleCreated?.();
+    }
     setDraft(null);
     startRef.current = null;
-  }, [tool, draft, pushToHistory, selectionBox, shapes]);
+  }, [tool, draft, pushToHistory, selectionBox, shapes, onRectangleCreated]);
 
   const selectedGroupId =
     (selectedIds.length >= 2 &&
@@ -861,6 +890,7 @@ export const RoomLayout: FC<RoomLayoutProps> = ({ projectId, roomId }) => {
     <div
       className={styles.wrapper}
       data-fullscreen={isFullscreen}
+      data-tutorial="tutorial-canvas"
       aria-label="Область проектирования"
     >
       <div ref={containerRef} className={styles.canvasWrap}>

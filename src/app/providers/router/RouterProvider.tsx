@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider as ReactRouterProvider } from 'reac
 import { HomePage } from '@/pages/HomePage';
 import { ProjectsListPage, ProjectPage } from '@/pages/Projects';
 import { ArticlePage, ArticlesListPage } from '@/pages/Articles';
+import { TutorialPage } from '@/pages/Tutorial';
 
 const router = createBrowserRouter([
   {
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
   {
     path: '/articles/:slug',
     element: <ArticlePage />,
+  },
+  {
+    path: '/tutorial',
+    element: <TutorialPage />,
   },
 ]);
 
