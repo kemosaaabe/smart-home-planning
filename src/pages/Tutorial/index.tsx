@@ -1,5 +1,6 @@
-import { type FC, useMemo, useState } from 'react';
+import { type FC, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { TriangleAlert } from 'lucide-react';
 import { Layout } from '@/widgets/layout';
 import { RoomLayout, RoomsList } from '@/widgets/Room';
 import {
@@ -13,7 +14,12 @@ import {
   DialogTitle,
 } from '@/shared/ui';
 import type { Room } from '@/entities/Room';
-import { TutorialOverlay, tutorialSteps, useTutorial } from '@/features/tutorial';
+import {
+  TutorialOverlay,
+  tutorialSteps,
+  tutorialStorageKeys,
+  useTutorial,
+} from '@/features/tutorial';
 import styles from './styles.module.scss';
 
 const breadcrumbs = [
@@ -25,6 +31,7 @@ const trainingProjectId = 0;
 
 export const TutorialPage: FC = () => {
   const [sessionId, setSessionId] = useState(1);
+  const [isMobile, setIsMobile] = useState(false);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
   const [hasRectangle, setHasRectangle] = useState(false);
@@ -45,6 +52,7 @@ export const TutorialPage: FC = () => {
   });
 
   const createRoom = () => {
+    if (isMobile) return;
     const trainingRoom: Room = {
       id: sessionId,
       name: 'Учебная комната',
@@ -74,6 +82,19 @@ export const TutorialPage: FC = () => {
     () => (selectedRoomId ?? rooms[0]?.id ?? null),
     [selectedRoomId, rooms]
   );
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 768px)');
+    const apply = () => setIsMobile(media.matches);
+    apply();
+    media.addEventListener('change', apply);
+    return () => media.removeEventListener('change', apply);
+  }, []);
+
+  useEffect(() => {
+    if (!tutorial.completedOpen) return;
+    localStorage.setItem(tutorialStorageKeys.completed, 'true');
+  }, [tutorial.completedOpen]);
 
   const currentStepId = tutorial.currentStep?.id;
   const progressText =
@@ -130,7 +151,17 @@ export const TutorialPage: FC = () => {
           )}
         </header>
 
-        {rooms.length === 0 ? (
+        {isMobile ? (
+          <div className={styles.mobileWarning} role="alert">
+            <TriangleAlert className={styles.mobileWarningIcon} aria-hidden />
+            <p className={styles.mobileWarningTitle}>
+              Проектирование недоступно на мобильных устройствах
+            </p>
+            <p className={styles.mobileWarningText}>
+              Для обучающего режима и работы с полотном используйте ПК или ноутбук.
+            </p>
+          </div>
+        ) : rooms.length === 0 ? (
           <div className={styles.empty}>
             <p className={styles.emptyText}>
               Шаг 1. Сначала создай учебную комнату для тренировки.
@@ -163,7 +194,7 @@ export const TutorialPage: FC = () => {
       </div>
 
       <TutorialOverlay
-        open={tutorial.open}
+        open={!isMobile && tutorial.open}
         step={tutorial.currentStep}
         stepIndex={tutorial.currentStepIndex}
         totalSteps={tutorial.totalSteps}
@@ -176,7 +207,7 @@ export const TutorialPage: FC = () => {
       />
 
       <Dialog
-        open={tutorial.completedOpen}
+        open={!isMobile && tutorial.completedOpen}
         onOpenChange={(value) => !value && tutorial.closeCompleted()}
       >
         <DialogContent>
