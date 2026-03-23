@@ -37,22 +37,22 @@
   border: none;
   border-radius: var(--border-radius);
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--foreground);
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 
   &:hover {
     background: var(--muted);
-    color: var(--text-primary);
+    color: var(--foreground);
   }
 
   &[data-active='true'] {
-    background: var(--accent);
-    color: #fff;
+    background: var(--primary);
+    color: var(--primary-foreground);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
 }
@@ -71,7 +71,7 @@
   border: none;
   border-radius: var(--border-radius);
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--foreground);
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 
