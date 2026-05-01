@@ -46,9 +46,12 @@
 }
 
 .title {
+  font-family: var(--font-family-display);
   font-size: var(--font-size-h2);
-  font-weight: 700;
+  font-weight: 400;
   line-height: var(--line-height-h2);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--text-primary);
   margin: 0;
 }

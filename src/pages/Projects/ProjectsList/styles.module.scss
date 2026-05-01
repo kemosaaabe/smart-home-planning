@@ -10,9 +10,10 @@
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-md);
   padding: var(--spacing-md);
-  border-radius: var(--border-radius-lg);
-  border: 1px solid color-mix(in srgb, var(--color-warning) 45%, var(--border-color));
+  border-radius: 0;
+  border: 2px solid color-mix(in srgb, var(--color-warning) 45%, var(--border-color));
   background: color-mix(in srgb, var(--color-warning) 12%, var(--bg-secondary));
+  box-shadow: var(--shadow-sm);
 }
 
 .tutorialWarningIcon {
@@ -57,9 +58,12 @@
 }
 
 .title {
+  font-family: var(--font-family-display);
   font-size: var(--font-size-h2);
-  font-weight: 700;
+  font-weight: 400;
   line-height: var(--line-height-h2);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--text-primary);
   margin: 0;
 }

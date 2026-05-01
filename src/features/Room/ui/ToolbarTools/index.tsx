@@ -1,4 +1,4 @@
-import type { FC, RefObject } from 'react';
+import type { FC, Ref, RefObject } from 'react';
 import { MousePointer2, Magnet, Square, Minus, Eraser, Palette, Maximize2, Minimize2 } from 'lucide-react';
 import { HexColorPicker } from 'react-colorful';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui';
@@ -56,7 +56,7 @@ export const ToolbarTools: FC<ToolbarToolsProps> = ({
               <MousePointer2 size={20} strokeWidth={2} />
             </button>
           </TooltipTrigger>
-          <TooltipContent side="bottom">Курсор — выделение</TooltipContent>
+          <TooltipContent side="top">Курсор — выделение</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -72,7 +72,7 @@ export const ToolbarTools: FC<ToolbarToolsProps> = ({
               <Magnet size={20} strokeWidth={2} />
             </button>
           </TooltipTrigger>
-          <TooltipContent side="bottom">Привязка</TooltipContent>
+          <TooltipContent side="top">Привязка</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -88,7 +88,7 @@ export const ToolbarTools: FC<ToolbarToolsProps> = ({
               <Square size={20} strokeWidth={2} />
             </button>
           </TooltipTrigger>
-          <TooltipContent side="bottom">Прямоугольник</TooltipContent>
+          <TooltipContent side="top">Прямоугольник</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -104,7 +104,7 @@ export const ToolbarTools: FC<ToolbarToolsProps> = ({
               <Minus size={20} strokeWidth={2} />
             </button>
           </TooltipTrigger>
-          <TooltipContent side="bottom">Линия</TooltipContent>
+          <TooltipContent side="top">Линия</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -120,9 +120,9 @@ export const ToolbarTools: FC<ToolbarToolsProps> = ({
               <Eraser size={20} strokeWidth={2} />
             </button>
           </TooltipTrigger>
-          <TooltipContent side="bottom">Ластик</TooltipContent>
+          <TooltipContent side="top">Ластик</TooltipContent>
         </Tooltip>
-        <div className={styles.colorPickerWrap} ref={colorPickerRef}>
+        <div className={styles.colorPickerWrap} ref={colorPickerRef as Ref<HTMLDivElement>}>
           <Tooltip>
             <TooltipTrigger asChild>
               <button
@@ -139,7 +139,7 @@ export const ToolbarTools: FC<ToolbarToolsProps> = ({
                 <Palette size={20} strokeWidth={2} />
               </button>
             </TooltipTrigger>
-            <TooltipContent side="bottom">Цвет</TooltipContent>
+            <TooltipContent side="top">Цвет</TooltipContent>
           </Tooltip>
           {colorPickerOpen && (
             <div className={styles.colorPickerPopover} role="dialog" aria-label="Выбор цвета">
@@ -181,7 +181,7 @@ export const ToolbarTools: FC<ToolbarToolsProps> = ({
             )}
           </button>
         </TooltipTrigger>
-        <TooltipContent side="bottom">
+        <TooltipContent side="top">
           {isFullscreen ? 'Свернуть' : 'Полный экран'}
         </TooltipContent>
       </Tooltip>

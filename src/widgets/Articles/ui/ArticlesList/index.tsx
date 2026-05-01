@@ -6,7 +6,7 @@ export const ArticlesList: FC = () => {
   const list = getAllArticles();
 
   return (
-    <div className={styles.grid}>
+    <div className={styles.list}>
       {list.map((article) => (
         <ArticleCard key={article.slug} article={article} />
       ))}

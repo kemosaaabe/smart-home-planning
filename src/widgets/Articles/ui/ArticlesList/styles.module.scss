@@ -1,11 +1,11 @@
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: var(--spacing-lg);
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 @media (max-width: 768px) {
-  .grid {
-    grid-template-columns: 1fr;
+  .list {
+    gap: 0;
   }
 }

@@ -47,7 +47,12 @@ export const TutorialOverlay: FC<TutorialOverlayProps> = ({
     }
 
     const update = () => {
-      const element = document.querySelector(step.selector);
+      const selector = step.selector;
+      if (!selector) {
+        setRect(null);
+        return;
+      }
+      const element = document.querySelector(selector);
       if (!element) {
         setRect(null);
         return;

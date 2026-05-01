@@ -26,7 +26,7 @@ export const ToolbarObjects: FC<ToolbarObjectsProps> = ({
             <Sofa size={20} strokeWidth={2} />
           </button>
         </TooltipTrigger>
-        <TooltipContent side="bottom">Мебель</TooltipContent>
+        <TooltipContent side="top">Мебель</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -40,7 +40,7 @@ export const ToolbarObjects: FC<ToolbarObjectsProps> = ({
             <Smartphone size={20} strokeWidth={2} />
           </button>
         </TooltipTrigger>
-        <TooltipContent side="bottom">Умные устройства</TooltipContent>
+        <TooltipContent side="top">Умные устройства</TooltipContent>
       </Tooltip>
     </div>
   );

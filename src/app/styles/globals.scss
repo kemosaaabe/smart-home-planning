@@ -16,6 +16,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 #root {
@@ -23,22 +24,39 @@ body {
   width: 100%;
 }
 
+h1,
+h2,
+h3 {
+  font-family: var(--font-family-display);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+h4 {
+  font-family: var(--font-family-primary);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
 @mixin scrollbar-thin {
   &::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
   }
-  
+
   &::-webkit-scrollbar-track {
     background: var(--bg-secondary);
+    border-left: 2px solid var(--border-color);
   }
-  
+
   &::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 3px;
-    
+    background: var(--color-primary);
+    border: 2px solid var(--bg-primary);
+
     &:hover {
-      background: var(--text-tertiary);
+      background: var(--accent);
     }
   }
 }
