@@ -32,6 +32,7 @@ import {
   cleanupGroupsAfterEraser,
   computeGroupBounds,
 } from '../../lib';
+import { useTheme } from '@/app/providers/theme';
 import styles from './styles.module.scss';
 
 export type { DrawingTool, DrawnRect, DrawnLine, DrawnShape, ShapeGroup, RoomLayoutProps, RoomLayoutPersistedState } from '../../types';
@@ -46,12 +47,14 @@ export const RoomLayout: FC<RoomLayoutProps> = ({
   openFurnitureSignal,
   openDevicesSignal,
 }) => {
+  const { theme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = useState({ width: 800, height: 500 });
   const [themeColors, setThemeColors] = useState({
-    selection: '#2854C5',
+    selection: '#0f766e',
     anchorFill: '#ffffff',
-    anchorStroke: '#2854C5',
+    anchorStroke: '#0f766e',
+    selectionFill: 'rgba(15, 118, 110, 0.14)',
   });
 
   useLayoutEffect(() => {
@@ -79,14 +82,17 @@ export const RoomLayout: FC<RoomLayoutProps> = ({
   useLayoutEffect(() => {
     const root = document.documentElement;
     const s = getComputedStyle(root);
-    const primary = s.getPropertyValue('--primary').trim() || '#2854C5';
-    const background = s.getPropertyValue('--background').trim() || '#ffffff';
+    const primary = s.getPropertyValue('--primary').trim() || '#0f766e';
+    const background = s.getPropertyValue('--background').trim() || '#f8f6f3';
+    const selectionFill =
+      s.getPropertyValue('--selection-box-fill').trim() || 'rgba(15, 118, 110, 0.14)';
     setThemeColors({
       selection: primary,
       anchorFill: background,
       anchorStroke: primary,
+      selectionFill,
     });
-  }, []);
+  }, [theme]);
 
   const [tool, setTool] = useState<DrawingTool>('cursor');
   const [snapEnabled, setSnapEnabled] = useState(true);
@@ -1165,7 +1171,7 @@ export const RoomLayout: FC<RoomLayoutProps> = ({
                 y={selectionBox.y}
                 width={selectionBox.width}
                 height={selectionBox.height}
-                fill="rgba(40, 84, 197, 0.1)"
+                fill={themeColors.selectionFill}
                 stroke={themeColors.selection}
                 strokeWidth={2}
                 dash={[6, 4]}

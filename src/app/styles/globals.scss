@@ -13,14 +13,23 @@ html,
 body {
   height: 100%;
   font-family: var(--font-family-primary);
+  letter-spacing: 0.01em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 #root {
   height: 100%;
   width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-family-heading);
 }
 
 @mixin scrollbar-thin {

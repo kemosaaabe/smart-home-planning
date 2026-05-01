@@ -1,29 +1,26 @@
 .header {
   height: var(--header-height);
-  background: var(--bg-primary);
   border-bottom: 1px solid var(--border-color);
   position: sticky;
   top: 0;
   z-index: 100;
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.9);
-}
-
-[data-theme='dark'] .header {
-  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(14px);
+  background: var(--header-bg);
 }
 
 .container {
   max-width: var(--container-max-width);
   margin: 0 auto;
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--spacing-lg);
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--spacing-lg);
 }
 
 .logo {
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-h4);
   font-weight: 700;
   color: var(--text-primary);
@@ -53,7 +50,7 @@
 .nav {
   display: flex;
   align-items: center;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-xl);
 }
 
 .navLink {

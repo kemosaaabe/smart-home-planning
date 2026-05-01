@@ -16,8 +16,8 @@ export default {
         primary: {
           DEFAULT: 'var(--primary)',
           foreground: 'var(--primary-foreground)',
-          hover: '#1e3fa8',
-          light: '#e0e8f7',
+          hover: 'var(--color-primary-hover)',
+          light: 'var(--color-primary-light)',
         },
         secondary: {
           DEFAULT: 'var(--secondary)',
@@ -45,7 +45,18 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['SN Pro', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'sans-serif'],
+        sans: [
+          'DM Sans',
+          'ui-sans-serif',
+          'system-ui',
+          'sans-serif',
+        ],
+        heading: ['Syne', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
+      borderRadius: {
+        lg: 'var(--border-radius-lg)',
+        md: 'var(--border-radius)',
+        sm: 'calc(var(--border-radius) - 4px)',
       },
     },
   },

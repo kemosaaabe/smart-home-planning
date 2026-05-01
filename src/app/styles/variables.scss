@@ -1,122 +1,132 @@
-// Глобальные CSS-переменные для темизации и консистентности
+// Глобальные CSS-переменные — альтернативный визуальный стиль для сравнения
 :root {
-  // shadcn/ui theme (для компонентов shadcn)
-  --background: #ffffff;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #2854C5;
-  --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #0f172a;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #f1f5f9;
-  --accent-foreground: #0f172a;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #2854C5;
+  // shadcn/ui theme
+  --background: #f8f6f3;
+  --foreground: #1c1917;
+  --card: #fffcf9;
+  --card-foreground: #1c1917;
+  --popover: #fffcf9;
+  --popover-foreground: #1c1917;
+  --primary: #0f766e;
+  --primary-foreground: #fafaf9;
+  --secondary: #e7e5e4;
+  --secondary-foreground: #292524;
+  --muted: #f0eeeb;
+  --muted-foreground: #78716c;
+  --accent: #e7e5e4;
+  --accent-foreground: #1c1917;
+  --destructive: #dc2626;
+  --destructive-foreground: #fafaf9;
+  --border: #e7e5e4;
+  --input: #e7e5e4;
+  --ring: #0f766e;
 
   // colors
-  --color-primary: #2854C5;
-  --color-primary-hover: #1e3fa8;
-  --color-primary-light: #e0e8f7;
+  --color-primary: #0f766e;
+  --color-primary-hover: #115e59;
+  --color-primary-light: #ccfbf1;
 
-  --color-secondary: #64748b;
-  --color-secondary-hover: #475569;
+  --color-secondary: #57534e;
+  --color-secondary-hover: #44403c;
 
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
+  --color-success: #059669;
+  --color-warning: #d97706;
+  --color-error: #dc2626;
 
   // bg
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
-  --bg-tertiary: #f1f5f9;
+  --bg-primary: #f8f6f3;
+  --bg-secondary: #f0eeeb;
+  --bg-tertiary: #e7e5e4;
 
   // text-color
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-tertiary: #94a3b8;
+  --text-primary: #1c1917;
+  --text-secondary: #57534e;
+  --text-tertiary: #a8a29e;
 
   // borders
-  --border-color: #e2e8f0;
-  --border-radius: 8px;
-  --border-radius-lg: 12px;
-  
+  --border-color: #e7e5e4;
+  --border-radius: 12px;
+  --border-radius-lg: 18px;
+
   // shadows
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-  
+  --shadow-sm: 0 1px 2px 0 rgb(28 25 23 / 0.04);
+  --shadow-md: 0 6px 16px -4px rgb(28 25 23 / 0.08);
+  --shadow-lg: 0 16px 40px -12px rgb(28 25 23 / 0.12);
+
   // spacing
   --spacing-xs: 8px;
   --spacing-sm: 12px;
   --spacing-md: 16px;
   --spacing-lg: 24px;
-  --spacing-xl: 32px;
-  
+  --spacing-xl: 36px;
+
   // sizes
-  --header-height: 64px;
+  --header-height: 72px;
   --sidebar-width: 280px;
-  --container-max-width: 1200px;
-  
+  --container-max-width: 1280px;
+
   // font-sizes
-  --font-size-h1: 48px;
-  --font-size-h2: 36px;
-  --font-size-h3: 28px;
-  --font-size-h4: 20px;
-  --font-size-body-l: 20px;
+  --font-size-h1: 44px;
+  --font-size-h2: 34px;
+  --font-size-h3: 26px;
+  --font-size-h4: 19px;
+  --font-size-body-l: 19px;
   --font-size-body-m: 16px;
   --font-size-body-s: 14px;
-  
+
   // line-heights
-  --line-height-h1: 56px;
-  --line-height-h2: 44px;
-  --line-height-h3: 36px;
+  --line-height-h1: 52px;
+  --line-height-h2: 40px;
+  --line-height-h3: 34px;
   --line-height-h4: 28px;
-  --line-height-body-l: 32px;
-  --line-height-body-m: 24px;
-  --line-height-body-s: 20px;
-  
+  --line-height-body-l: 30px;
+  --line-height-body-m: 25px;
+  --line-height-body-s: 21px;
+
   // fonts
-  --font-family-primary: 'SN Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  --font-family-heading: 'Syne', ui-sans-serif, system-ui, sans-serif;
+  --font-family-primary: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+
+  // surfaces (шапка, оверлеи канваса)
+  --header-bg: color-mix(in srgb, var(--bg-primary) 86%, transparent);
+  --selection-box-fill: rgba(15, 118, 110, 0.14);
 }
 
-// dark theme
 [data-theme='dark'] {
-  --background: #0f172a;
-  --foreground: #f1f5f9;
-  --card: #0f172a;
-  --card-foreground: #f1f5f9;
-  --popover: #0f172a;
-  --popover-foreground: #f1f5f9;
-  --primary: #2854C5;
-  --primary-foreground: #ffffff;
-  --secondary: #1e293b;
-  --secondary-foreground: #f1f5f9;
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
-  --accent: #1e293b;
-  --accent-foreground: #f1f5f9;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #334155;
-  --input: #334155;
-  --ring: #2854C5;
+  --background: #0c1211;
+  --foreground: #fafaf9;
+  --card: #111a18;
+  --card-foreground: #fafaf9;
+  --popover: #111a18;
+  --popover-foreground: #fafaf9;
+  --primary: #2dd4bf;
+  --primary-foreground: #042f2e;
+  --secondary: #1c2927;
+  --secondary-foreground: #e7e5e4;
+  --muted: #1c2927;
+  --muted-foreground: #a8a29e;
+  --accent: #1c2927;
+  --accent-foreground: #fafaf9;
+  --destructive: #f87171;
+  --destructive-foreground: #450a0a;
+  --border: #2a3d3a;
+  --input: #2a3d3a;
+  --ring: #2dd4bf;
 
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-tertiary: #334155;
+  --bg-primary: #0c1211;
+  --bg-secondary: #152220;
+  --bg-tertiary: #1c2927;
 
-  --text-primary: #f1f5f9;
-  --text-secondary: #cbd5e1;
-  --text-tertiary: #94a3b8;
+  --text-primary: #fafaf9;
+  --text-secondary: #d6d3d1;
+  --text-tertiary: #a8a29e;
 
-  --border-color: #334155;
+  --border-color: #2a3d3a;
+
+  --color-primary: #2dd4bf;
+  --color-primary-hover: #5eead4;
+  --color-primary-light: #134e4a;
+
+  --header-bg: color-mix(in srgb, var(--bg-primary) 82%, transparent);
+  --selection-box-fill: rgba(45, 212, 191, 0.16);
 }
